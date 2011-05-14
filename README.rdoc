@@ -1,0 +1,60 @@
+= SimpleGem
+
+== Description
+
+SimpleGem is a gem to help quickly generate a ruby gem project ready to build, test, and deploy.  It builds upon and uses Bundler's gem features.
+
+== Installation
+
+    gem install kelredd-simple-gem
+
+== Usage
+
+    $ simple-gem my-gem
+
+This will create a gem structure under the './my-gem'.  The command is pretty forgiving with the name you supply, it will automatically transform anything that is CamelCased into something more ruby-like.  If you have an existing gem structure, it will just add/overwrite where necessary and not remove anything.
+
+The gem will generate with bundler (http://github.com/carlhuda/bundler/) and test-belt (http://github.com/kelredd/test-belt) gems as development dependencies.  Theses gems are all used in the generated test helper to make unit testing and releasing your new gem simple.  Remove them from the generated Rakefile and test helper if you don't want to use them.
+
+After generating your gem, go ahead and add information about your gem to both the gemspec and README files.  The default version number is "0.0.1", but if you want to change that, take a look at <tt>lib/my_gem/version.rb</tt> to make the change - this will automatically be picked up when you rebuild your gem.
+
+Your new gem provides some Rake tasks for convenience:
+
+* all the bundler gem rake tasks (http://github.com/carlhuda/bundler/)
+* all the testing rake task stuff from test-belt (http://github.com/kelredd/test-belt)
+
+That's it. Enjoy.
+
+== Acceptance Testing
+
+  # clone this repo
+  $ bundle install
+  $ rake test
+
+== Credit
+Many thanks to Patrick Reagan (mailto:reaganpr@gmail.com) who is the original author of this gem.  The source and credit is largely his.  I simply forked his source on Github and extended it for my purposes.  The original source can be found here: http://github.com/reagent/simple-gem/tree/master.
+
+== License
+
+Copyright (c) 2008-2009 Kelly Redding (mailto:kelly@kelredd.com) and Patrick Reagan (mailto:reaganpr@gmail.com)
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
