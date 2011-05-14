@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'ggem/gem'
+
+if ARGV[0]
+  the_gem = GGem::Gem.new(`pwd`.strip, ARGV[0])
+  the_gem.save
+else
+  puts "Please specify a name for your gem"
+end

@@ -2,21 +2,21 @@
 
 == Description
 
-SimpleGem is a gem to help quickly generate a ruby gem project ready to build, test, and deploy.  It builds upon and uses Bundler's gem features.
+Quickly, easily, consistantly generate a ruby gem project ready to build, test, and deploy.  Uses Bundler's gem building features.
 
 == Installation
 
-    gem install kelredd-simple-gem
+    gem install ggem
 
 == Usage
 
-    $ simple-gem my-gem
+    $ ggem my-gem
 
-This will create a gem structure under the './my-gem'.  The command is pretty forgiving with the name you supply, it will automatically transform anything that is CamelCased into something more ruby-like.  If you have an existing gem structure, it will just add/overwrite where necessary and not remove anything.
+This creates a folder and some files for developing, testing, and building a gem.  The command is pretty forgiving with the name you supply, it will automatically transform anything that is CamelCased into something more ruby-like.  If you have existing folders/files it will just add/overwrite where necessary and not remove anything.
 
-The gem will generate with bundler (http://github.com/carlhuda/bundler/) and test-belt (http://github.com/kelredd/test-belt) gems as development dependencies.  Theses gems are all used in the generated test helper to make unit testing and releasing your new gem simple.  Remove them from the generated Rakefile and test helper if you don't want to use them.
+The gem will generate with bundler (http://github.com/carlhuda/bundler/) and test-belt (http://github.com/kelredd/test-belt) gems as development dependencies.  They are brought in automatically to make unit testing and releasing your new gem easy.  Remove their calls from the generated Rakefile and test helper if you don't want to use them.
 
-After generating your gem, go ahead and add information about your gem to both the gemspec and README files.  The default version number is "0.0.1", but if you want to change that, take a look at <tt>lib/my_gem/version.rb</tt> to make the change - this will automatically be picked up when you rebuild your gem.
+After generating your gem, add information about your gem to both the gemspec and README files.  The default version number is "0.0.1", but if you want to change that, take a look at <tt>lib/my_gem/version.rb</tt> to make the change - this will automatically be picked up when you rebuild your gem.
 
 Your new gem provides some Rake tasks for convenience:
 
@@ -32,11 +32,11 @@ That's it. Enjoy.
   $ rake test
 
 == Credit
-Many thanks to Patrick Reagan (mailto:reaganpr@gmail.com) who is the original author of this gem.  The source and credit is largely his.  I simply forked his source on Github and extended it for my purposes.  The original source can be found here: http://github.com/reagent/simple-gem/tree/master.
+This gem came about from work I did on a fork of Patrick Reagan's (https://github.com/reagent) simple-gem.  The original source can be found here: https://github.com/kelredd/simple-gem.
 
 == License
 
-Copyright (c) 2008-2009 Kelly Redding (mailto:kelly@kelredd.com) and Patrick Reagan (mailto:reaganpr@gmail.com)
+Copyright (c) 2008-2011 Kelly Redding (mailto:kelly@kelredd.com)
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
