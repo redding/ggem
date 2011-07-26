@@ -4,7 +4,7 @@ require "ggem/version"
 
 Gem::Specification.new do |s|
   s.name        = "ggem"
-  s.version     = SimpleGem::VERSION
+  s.version     = GGem::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Kelly Redding"]
   s.email       = ["kelly@kelredd.com"]

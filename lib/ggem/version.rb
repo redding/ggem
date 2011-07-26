@@ -1,3 +1,3 @@
-module SimpleGem
+module GGem
   VERSION = "1.1.0"
 end
