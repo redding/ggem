@@ -1,5 +1,5 @@
-require "test/helper"
-require "test/name_set"
+require "test_belt"
+require "name_set"
 
 module GGem
   class GGemTest < Test::Unit::TestCase

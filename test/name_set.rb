@@ -24,7 +24,7 @@ module GGem
           "lib/#{@ruby_name}/version.rb",
 
           "test/helper.rb",
-          "test/env.rb",
+          "test/irb.rb",
           "test/#{@ruby_name}_test.rb"
         ]
       end

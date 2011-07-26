@@ -18,5 +18,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency("bundler", ["~> 1.0"])
-  s.add_development_dependency("test-belt", ["= 1.0.1"])
+  s.add_development_dependency("test-belt", ["~> 2.0"])
 end

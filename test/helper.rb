@@ -1,6 +1,6 @@
-require 'rubygems'
-require 'test_belt'
-require 'test/env'
+# this file is automatically required in when you require 'test_belt'
+# put test helpers here
+require 'ggem'
 
 class Test::Unit::TestCase
   TMP_PATH = File.expand_path("#{File.dirname(__FILE__)}/../tmp")
