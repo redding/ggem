@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ggem (1.1.0)
+    ggem (1.1.1)
       bundler (~> 1.0)
 
 GEM
