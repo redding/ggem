@@ -1,11 +1,11 @@
-require "test_belt"
+require "assert"
 require "name_set"
 
-module GGem
-  class GGemTest < Test::Unit::TestCase
-    include TestBelt
+require "ggem/gem"
 
-    context "GGem::Gem"
+module GGem
+  class GGemTest < Assert::Context
+    desc "GGem::Gem"
   end
 
   class RootPathTest < GGemTest
@@ -26,7 +26,7 @@ module GGem
   class SaveTest < GGemTest
     NS = GGem::NameSet::Simple.new
 
-    context "after it's been saved"
+    desc "after it's been saved"
     setup_once do
       FileUtils.mkdir_p(TMP_PATH)
       Gem.new(TMP_PATH, NS.variations.first).save

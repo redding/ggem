@@ -1,8 +1,10 @@
-# this file is automatically required in when you require 'test_belt'
+# this file is automatically required in when you require 'assert'
 # put test helpers here
-require 'ggem'
 
-class Test::Unit::TestCase
+# add test dir to the load path
+$LOAD_PATH.unshift(File.expand_path("..", __FILE__))
+
+class Assert::Context
   TMP_PATH = File.expand_path("#{File.dirname(__FILE__)}/../tmp")
 
   class << self
