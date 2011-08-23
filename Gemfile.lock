@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    ggem (1.1.1)
-      bundler (~> 1.0)
+    ggem (1.1.2)
+      bundler
 
 GEM
   remote: http://rubygems.org/
@@ -16,6 +16,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  assert (~> 0.2.0)
+  assert
   ggem!
   rake (~> 0.9.2)
