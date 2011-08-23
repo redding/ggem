@@ -1,4 +1,4 @@
-# this file is automatically required in when you require 'assert'
+# this file is automatically required in when you require 'assert' in your tests
 # put test helpers here
 
 # add test dir to the load path
