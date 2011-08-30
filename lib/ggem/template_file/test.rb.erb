@@ -1,9 +1,7 @@
-require "test_belt"
+require "assert"
 
-class <%= @gem.module_name %>Test < Test::Unit::TestCase
-  include TestBelt
-
-  context "<%= @gem.module_name %>"
+class <%= @gem.module_name %>Test < Assert::Context
+  desc "<%= @gem.module_name %>"
 
   should "flunk" do
     flunk "Please provide some tests"
