@@ -19,7 +19,7 @@ module GGem
       GGem::NameSet::Underscored,
       GGem::NameSet::HyphenatedOther
     ].each do |ns|
-      should_generate_name_set(ns.new)
+      should generate_name_set(ns.new)
     end
   end
 
@@ -35,7 +35,7 @@ module GGem
       FileUtils.rm_rf(TMP_PATH)
     end
 
-    should_create_paths((NS.expected_folders + NS.expected_files).collect do |p|
+    should create_paths((NS.expected_folders + NS.expected_files).collect do |p|
       File.join(TMP_PATH, NS.name, p)
     end)
   end

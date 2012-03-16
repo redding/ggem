@@ -18,7 +18,8 @@ module GGem
           "Gemfile",
           "#{@name}.gemspec",
           "Rakefile",
-          "README.rdoc",
+          "README.md",
+          "LICENSE",
 
           "lib/#{@ruby_name}.rb",
           "lib/#{@ruby_name}/version.rb",
