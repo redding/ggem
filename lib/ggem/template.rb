@@ -3,7 +3,7 @@ require 'fileutils'
 
 module GGem
   class Template
-    SOURCE_PATH =
+
     def initialize(ggem)
       @gem = ggem
     end
@@ -14,27 +14,30 @@ module GGem
       save_folder "test"
 
       save_file('gitignore.erb', '.gitignore')
-      save_file('Gemfile.erb', 'Gemfile')
-      save_file('gemspec.erb', "#{@gem.name}.gemspec")
-      save_file('Rakefile.erb', 'Rakefile')
-      save_file('README.rdoc.erb', 'README.rdoc')
+      save_file('Gemfile.erb',   'Gemfile')
+      save_file('gemspec.erb',   "#{@gem.name}.gemspec")
+      save_file('Rakefile.erb',  'Rakefile')
+      save_file('README.md.erb', 'README.md')
+      save_file('LICENSE.erb',   'LICENSE')
 
-      save_file('lib.rb.erb', "lib/#{@gem.ruby_name}.rb")
+      save_file('lib.rb.erb',         "lib/#{@gem.ruby_name}.rb")
       save_file('lib_version.rb.erb', "lib/#{@gem.ruby_name}/version.rb")
 
-      save_file('test_irb.rb.erb', 'test/irb.rb')
+      save_file('test_irb.rb.erb',    'test/irb.rb')
       save_file('test_helper.rb.erb', 'test/helper.rb')
-      save_file('test.rb.erb', "test/#{@gem.ruby_name}_test.rb")
+      save_file('test.rb.erb',        "test/#{@gem.ruby_name}_test.rb")
+    end
+
+    def init
+      `cd #{@gem.path} && git init && git add --all`
     end
 
     private
 
     def save_folder(relative_path=nil)
       FileUtils.mkdir_p(File.join([
-        @gem.root_path, @gem.name, relative_path
+        @gem.path, relative_path
       ].compact))
-      ["lib/#{@gem.ruby_name}", 'test'].each do |dir|
-      end
     end
 
     def save_file(source, output)

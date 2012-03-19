@@ -11,27 +11,49 @@ module GGem
       self.name = name
     end
 
+    def path
+      File.join(root_path, name)
+    end
+
     def name=(name)
-      @name = name.gsub(/([A-Z])([a-z])/, '-\1\2').sub(/^-/, '').downcase
+      @name = name.
+        gsub(/([A-Z])([a-z])/, '_\1\2').
+        gsub(/_+/, '_').
+        sub(/^_/, '').
+        downcase
     end
 
     def module_name
-      @module_name ||= transform_name {|part| part.capitalize }
+      @module_name ||= transform_name({
+        '_' => '',
+        '-' => '::'
+      }) {|part| part.capitalize }
     end
     def ruby_name
-      @ruby_name ||= transform_name('_') {|part| part.downcase }
+      @ruby_name ||= transform_name({
+        '-' => '/'
+      }) {|part| part.downcase }
     end
 
     def save
-      Template.new(self).save
+      Template.new(self).tap do |t|
+        t.save
+        t.init
+      end
     end
 
     private
 
-    def transform_name(glue = nil, &block)
-      self.name.split(/[_-]/).collect do |part|
-        yield part if block_given?
-      end.join(glue)
+    def transform_name(conditions, &block)
+      n = (block ? block.call(self.name) : self.name)
+      conditions.each do |on, glue|
+        if (a = n.split(on)).size > 1
+          n = a.collect do |part|
+            block.call(part) if block
+          end.join(glue)
+        end
+      end
+      n
     end
 
   end
