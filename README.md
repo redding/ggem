@@ -4,11 +4,15 @@ Quickly, easily, consistantly generate a ruby gem project ready to build, test, 
 
 ## Installation
 
-    gem install ggem
+```bash
+$ gem install ggem
+```
 
 ## Usage
 
-    $ ggem my-gem
+```bash
+$ ggem my-gem
+```
 
 This creates a folder and some files for developing, testing, and building a gem.  The command is pretty forgiving with the name you supply, it will automatically transform anything that is CamelCased into something more rubyish.  If you have existing folders/files it will just add/overwrite where necessary and not remove anything.
 
@@ -16,7 +20,7 @@ GGem assumes you are using git for version control.  It uses information in you 
 
 The gem will generate with bundler (http://github.com/carlhuda/bundler/) and assert (http://github.com/teaminsight/assert) gems as development dependencies.  They are brought in automatically to make unit testing and releasing your new gem easy.  Remove their calls from the generated Rakefile and test helper if you don't want to use them.
 
-After generating your gem, add information about your gem to both the gemspec and README files.  The default version number is "0.0.1", but if you want to change that, take a look at <tt>lib/my_gem/version.rb</tt> to make the change - this will automatically be picked up when you rebuild your gem.
+After generating your gem, add information about your gem to both the gemspec and README files.  The default version number is "0.0.1", but if you want to change that, take a look at `lib/my_gem/version.rb` to make the change - this will automatically be picked up when you rebuild your gem.
 
 Your new gem provides some Rake tasks for convenience:
 
@@ -27,9 +31,11 @@ That's it. Enjoy.
 
 ## Acceptance Testing
 
-  # clone this repo
-  $ bundle install
-  $ rake test
+```bash
+# clone this repo
+$ bundle install
+$ rake test
+```
 
 ## Contributing
 
