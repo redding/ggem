@@ -3,7 +3,7 @@ require 'fileutils'
 
 module GGem
   class Template
-    SOURCE_PATH =
+
     def initialize(ggem)
       @gem = ggem
     end
@@ -28,14 +28,16 @@ module GGem
       save_file('test.rb.erb',        "test/#{@gem.ruby_name}_test.rb")
     end
 
+    def init
+      `cd #{@gem.path} && git init && git add --all`
+    end
+
     private
 
     def save_folder(relative_path=nil)
       FileUtils.mkdir_p(File.join([
-        @gem.root_path, @gem.name, relative_path
+        @gem.path, relative_path
       ].compact))
-      ["lib/#{@gem.ruby_name}", 'test'].each do |dir|
-      end
     end
 
     def save_file(source, output)

@@ -11,6 +11,10 @@ module GGem
       self.name = name
     end
 
+    def path
+      File.join(root_path, name)
+    end
+
     def name=(name)
       @name = name.
         gsub(/([A-Z])([a-z])/, '_\1\2').
@@ -32,7 +36,10 @@ module GGem
     end
 
     def save
-      Template.new(self).save
+      Template.new(self).tap do |t|
+        t.save
+        t.init
+      end
     end
 
     private
