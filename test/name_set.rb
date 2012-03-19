@@ -18,7 +18,8 @@ module GGem
           "Gemfile",
           "#{@name}.gemspec",
           "Rakefile",
-          "README.rdoc",
+          "README.md",
+          "LICENSE",
 
           "lib/#{@ruby_name}.rb",
           "lib/#{@ruby_name}/version.rb",
@@ -43,7 +44,7 @@ module GGem
 
     class Underscored < Base
       def initialize
-        @variations = ['my_gem']
+        @variations = ['my_gem', 'my__gem', 'MyGem', 'myGem', 'My_Gem']
         @name        = 'my_gem'
         @module_name = 'MyGem'
         @ruby_name   = 'my_gem'
@@ -53,10 +54,10 @@ module GGem
 
     class HyphenatedOther < Base
       def initialize
-        @variations = ['my-gem', 'MyGem', 'myGem']
+        @variations = ['my-gem']
         @name        = 'my-gem'
-        @module_name = 'MyGem'
-        @ruby_name   = 'my_gem'
+        @module_name = 'My::Gem'
+        @ruby_name   = 'my/gem'
       end
     end
 
