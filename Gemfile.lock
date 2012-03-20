@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ggem (1.2.0)
+    ggem (1.2.1)
       quickl
 
 GEM
