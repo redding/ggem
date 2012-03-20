@@ -45,6 +45,7 @@ module GGem
       output_file = File.join(@gem.root_path, @gem.name, output)
 
       if File.exists?(source_file)
+        FileUtils.mkdir_p(File.dirname(output_file))
         erb = ERB.new(File.read(source_file))
         File.open(output_file, 'w') {|f| f << erb.result(binding) }
       else
