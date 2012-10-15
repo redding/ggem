@@ -26,7 +26,7 @@ module GGem
 
           "test/helper.rb",
           "test/irb.rb",
-          "test/#{@ruby_name}_test.rb"
+          "test/#{@ruby_name}_tests.rb"
         ]
       end
     end

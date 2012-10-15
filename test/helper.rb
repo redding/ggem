@@ -8,8 +8,14 @@ class Assert::Context
 
   TMP_PATH = File.expand_path("#{File.dirname(__FILE__)}/../tmp")
 
-  def self.create_paths(*paths)
+
+
+  def self.create_paths(name_set)
     called_from = caller.first
+    folders = name_set.expected_folders
+    files = name_set.expected_files
+
+    paths = (folders + files).collect{|p| File.join(TMP_PATH, name_set.name, p)}
     macro_name =  "create the paths: #{paths.join(', ')}"
 
     Assert::Macro.new(macro_name) do

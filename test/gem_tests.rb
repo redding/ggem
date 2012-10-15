@@ -4,11 +4,11 @@ require "name_set"
 require "ggem/gem"
 
 module GGem
-  class GGemTest < Assert::Context
+  class GGemTests < Assert::Context
     desc "GGem::Gem"
   end
 
-  class RootPathTest < GGemTest
+  class RootPathTests < GGemTests
     before { @gem = Gem.new(TMP_PATH, 'a-gem') }
 
     should "know its root path" do
@@ -20,7 +20,7 @@ module GGem
     end
   end
 
-  class NameTest < GGemTest
+  class NameTests < GGemTests
     [ GGem::NameSet::Simple,
       GGem::NameSet::Underscored,
       GGem::NameSet::HyphenatedOther
@@ -29,7 +29,7 @@ module GGem
     end
   end
 
-  class SaveTest < GGemTest
+  class SaveTests < GGemTests
     NS_SIMPLE = GGem::NameSet::Simple.new
     NS_UNDER  = GGem::NameSet::Underscored.new
     NS_HYPHEN = GGem::NameSet::HyphenatedOther.new
@@ -45,17 +45,9 @@ module GGem
       FileUtils.rm_rf(TMP_PATH)
     end
 
-    should create_paths((NS_SIMPLE.expected_folders + NS_SIMPLE.expected_files).collect do |p|
-      File.join(TMP_PATH, NS_SIMPLE.name, p)
-    end)
-
-    should create_paths((NS_UNDER.expected_folders + NS_UNDER.expected_files).collect do |p|
-      File.join(TMP_PATH, NS_UNDER.name, p)
-    end)
-
-    should create_paths((NS_HYPHEN.expected_folders + NS_HYPHEN.expected_files).collect do |p|
-      File.join(TMP_PATH, NS_HYPHEN.name, p)
-    end)
+    should create_paths(NS_SIMPLE)
+    should create_paths(NS_UNDER)
+    should create_paths(NS_HYPHEN)
 
     should "init a git repo in the gem path" do
       assert File.exists?(File.join(TMP_PATH, NS_SIMPLE.name, '.git')), ".git repo config doesn't exist"
