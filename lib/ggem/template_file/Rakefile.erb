@@ -1,7 +1,7 @@
 #!/usr/bin/env rake
 
 require 'assert/rake_tasks'
-Assert::RakeTasks.for(:test)
+Assert::RakeTasks.install
 
 require 'bundler/gem_tasks'
 

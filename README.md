@@ -1,16 +1,16 @@
 # GGem
 
-Quickly, easily, consistantly generate a ruby gem project ready to build, test, and deploy.  Uses and emulates Bundler's gem building features.
+Quickly, easily, consistantly generate a ruby gem project ready to build, test, and deploy.  Uses and emulates most of Bundler's gem building features.
 
 ## Installation
 
-```bash
+```
 $ gem install ggem
 ```
 
 ## Usage
 
-```bash
+```
 $ ggem my-gem
 ```
 
@@ -29,14 +29,6 @@ Your new gem provides some Rake tasks for convenience:
 
 That's it. Enjoy.
 
-## Acceptance Testing
-
-```bash
-# clone this repo
-$ bundle install
-$ rake test
-```
-
 ## Contributing
 
 1. Fork it
@@ -44,8 +36,3 @@ $ rake test
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
-
-## Credit
-
-This gem came about from work I did on a fork of Patrick Reagan's (https://github.com/reagent) simple-gem.  The original source can be found here: https://github.com/kellyredding/simple-gem.
-

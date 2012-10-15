@@ -1,24 +1,21 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "ggem/version"
+require File.expand_path('../lib/ggem/version', __FILE__)
 
-Gem::Specification.new do |s|
-  s.name        = "ggem"
-  s.version     = GGem::VERSION
-  s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Kelly Redding"]
-  s.email       = ["kelly@kelredd.com"]
-  s.homepage    = "http://github.com/kelredd/ggem"
-  s.summary     = %q{"Juh Gem", baby!  (this makes gems)}
-  s.description = %q{Quickly, easily, consistantly generate a ruby gem project ready to build, test, and deploy.  Uses Bundler's gem building features.}
+Gem::Specification.new do |gem|
+  gem.name        = "ggem"
+  gem.version     = GGem::VERSION
+  gem.summary     = %q{"Juh Gem", baby!  (this makes gems)}
+  gem.description = %q{"Juh Gem", baby!  (this makes gems)}
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  gem.authors     = ["Kelly Redding"]
+  gem.email       = ["kelly@kellyredding.com"]
+  gem.homepage    = "http://github.com/kellyredding/ggem"
 
-  s.add_development_dependency("assert")
+  gem.files         = `git ls-files`.split("\n")
+  gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  gem.require_paths = ["lib"]
 
-  s.add_dependency("quickl")
-
+  gem.add_development_dependency("assert")
+  gem.add_dependency("quickl")
 end
