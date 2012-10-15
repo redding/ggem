@@ -26,7 +26,6 @@ module GGem
 
           "test/helper.rb",
           "test/irb.rb",
-          "test/#{@ruby_name}_tests.rb"
         ]
       end
     end
@@ -56,8 +55,8 @@ module GGem
       def initialize
         @variations = ['my-gem']
         @name        = 'my-gem'
-        @module_name = 'My::Gem'
-        @ruby_name   = 'my/gem'
+        @module_name = 'MyGem'
+        @ruby_name   = 'my-gem'
       end
     end
 

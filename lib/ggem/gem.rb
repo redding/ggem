@@ -24,15 +24,11 @@ module GGem
     end
 
     def module_name
-      @module_name ||= transform_name({
-        '_' => '',
-        '-' => '::'
-      }) {|part| part.capitalize }
+      @module_name ||= transform_name('_' => '', '-' => '') {|part| part.capitalize }
     end
+
     def ruby_name
-      @ruby_name ||= transform_name({
-        '-' => '/'
-      }) {|part| part.downcase }
+      @ruby_name ||= transform_name{|part| part.downcase }
     end
 
     def save
@@ -44,7 +40,7 @@ module GGem
 
     private
 
-    def transform_name(conditions, &block)
+    def transform_name(conditions={}, &block)
       n = (block ? block.call(self.name) : self.name)
       conditions.each do |on, glue|
         if (a = n.split(on)).size > 1

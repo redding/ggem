@@ -25,7 +25,6 @@ module GGem
 
       save_file('test_irb.rb.erb',    'test/irb.rb')
       save_file('test_helper.rb.erb', 'test/helper.rb')
-      save_file('test.rb.erb',        "test/#{@gem.ruby_name}_tests.rb")
     end
 
     def init
