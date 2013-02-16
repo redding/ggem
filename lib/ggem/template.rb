@@ -34,9 +34,8 @@ module GGem
     private
 
     def save_folder(relative_path=nil)
-      FileUtils.mkdir_p(File.join([
-        @gem.path, relative_path
-      ].compact))
+      path = File.join([@gem.path, relative_path].compact)
+      FileUtils.mkdir_p(path)
     end
 
     def save_file(source, output)
