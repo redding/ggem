@@ -21,10 +21,14 @@ class GGem::Gem
     setup do
       @gem = GGem::Gem.new(TMP_PATH, 'a-gem')
     end
+    subject { @gem }
+
+    should have_readers :root_path, :name
+    should have_imeths  :save!, :path, :name=, :module_name, :ruby_name
 
     should "know its root path and path" do
-      assert_equal TMP_PATH, @gem.root_path
-      assert_equal File.join(TMP_PATH, 'a-gem'), @gem.path
+      assert_equal TMP_PATH, subject.root_path
+      assert_equal File.join(TMP_PATH, 'a-gem'), subject.path
     end
 
   end
@@ -32,10 +36,11 @@ class GGem::Gem
   class SaveTests < BaseTests
     desc "after it's been saved"
     setup_once do
+      FileUtils.rm_rf(TMP_PATH)
       FileUtils.mkdir_p(TMP_PATH)
-      GGem::Gem.new(TMP_PATH, NS_SIMPLE.new.variations.first).save
-      GGem::Gem.new(TMP_PATH, NS_UNDER.new.variations.first).save
-      GGem::Gem.new(TMP_PATH, NS_HYPHEN.new.variations.first).save
+      GGem::Gem.new(TMP_PATH, NS_SIMPLE.new.variations.first).save!
+      GGem::Gem.new(TMP_PATH, NS_UNDER.new.variations.first).save!
+      GGem::Gem.new(TMP_PATH, NS_HYPHEN.new.variations.first).save!
     end
     teardown_once do
       FileUtils.rm_rf(TMP_PATH)

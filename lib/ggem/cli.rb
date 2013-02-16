@@ -22,7 +22,7 @@ module GGem
         @cli.parse!(args)
         raise CLIRB::Error, "please provide a gem name" if @cli.args.size < 1
 
-        path = GGem::Gem.new(Dir.pwd, *args).save!
+        path = GGem::Gem.new(Dir.pwd, *args).save!.path
         puts "created gem and initialized git repo in #{path}"
       rescue CLIRB::HelpExit
         puts help

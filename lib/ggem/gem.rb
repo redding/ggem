@@ -11,6 +11,11 @@ module GGem
       @root_path, self.name = path, name
     end
 
+    def save!
+      Template.new(self).tap{ |t| t.save; t.init }
+      self
+    end
+
     def path; File.join(@root_path, @name); end
     def name=(name); @name = normalize_name(name); end
 
@@ -21,10 +26,6 @@ module GGem
 
     def ruby_name
       @ruby_name ||= transform_name{ |part| part.downcase }
-    end
-
-    def save
-      Template.new(self).tap{ |t| t.save; t.init }
     end
 
     private

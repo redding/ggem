@@ -8,7 +8,9 @@ module GGem
         [ '',
           'lib',
           "lib/#{@ruby_name}",
-          'test'
+          'test',
+          'log',
+          'tmp'
         ]
       end
 
@@ -24,7 +26,9 @@ module GGem
           "lib/#{@ruby_name}/version.rb",
 
           "test/helper.rb",
-          "test/irb.rb",
+
+          "log/.gitkeep",
+          "tmp/.gitkeep",
         ]
       end
     end
