@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/ggem/version', __FILE__)
+$:.push File.expand_path("../lib", __FILE__)
+require "ggem/version"
 
 Gem::Specification.new do |gem|
   gem.name        = "ggem"
@@ -17,5 +18,4 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_development_dependency("assert")
-  gem.add_dependency("quickl")
 end

@@ -1,6 +1,6 @@
 # GGem
 
-Quickly, easily, consistantly generate a ruby gem project ready to build, test, and deploy.  Uses and emulates most of Bundler's gem building features.
+Consistantly generate a ruby gem project ready to test, build, and deploy.  Uses and emulates most of Bundler's gem building features.
 
 ## Installation
 
@@ -25,7 +25,6 @@ After generating your gem, add information about your gem to both the gemspec an
 Your new gem provides some Rake tasks for convenience:
 
 * all the bundler gem rake tasks (http://github.com/carlhuda/bundler/)
-* all the testing rake task stuff from assert (http://github.com/teaminsight/assert)
 
 That's it. Enjoy.
 
