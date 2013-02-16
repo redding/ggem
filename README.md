@@ -1,33 +1,31 @@
 # GGem
 
-Quickly, easily, consistantly generate a ruby gem project ready to build, test, and deploy.  Uses and emulates most of Bundler's gem building features.
+Consistantly generate a ruby gem project ready to test, build, and deploy.  Uses and emulates most of Bundler's gem building features.
+
+## Usage
+
+```
+$ ggem --help
+$ ggem my-gem
+$ git commit -m "Gem created with ggem"
+```
+
+GGem creates a folder and files for developing, testing, and releasing a gem.  It is safe to run on existing gem folders, adding/overwriting where necessary.
+
+## Features
+
+* creates `lib` and gem files similar to `bundle gem` (as of Bundler 1.2.4)
+* creates `test` files
+* source control using Git
+* test using Assert
+* release using Bundler
+* adds `TODO` entries in files where user input is needed
 
 ## Installation
 
 ```
 $ gem install ggem
 ```
-
-## Usage
-
-```
-$ ggem my-gem
-```
-
-This creates a folder and some files for developing, testing, and building a gem.  The command is pretty forgiving with the name you supply, it will automatically transform anything that is CamelCased into something more rubyish.  If you have existing folders/files it will just add/overwrite where necessary and not remove anything.
-
-GGem assumes you are using git for version control.  It uses information in you git config and git commands to generate some default information and to build the gem.  When creating new gems, GGem will also initialize a git repo and add the newly created files for committing.
-
-The gem will generate with bundler (http://github.com/carlhuda/bundler/) and assert (http://github.com/teaminsight/assert) gems as development dependencies.  They are brought in automatically to make unit testing and releasing your new gem easy.  Remove their calls from the generated Rakefile and test helper if you don't want to use them.
-
-After generating your gem, add information about your gem to both the gemspec and README files.  The default version number is "0.0.1", but if you want to change that, take a look at `lib/my_gem/version.rb` to make the change - this will automatically be picked up when you rebuild your gem.
-
-Your new gem provides some Rake tasks for convenience:
-
-* all the bundler gem rake tasks (http://github.com/carlhuda/bundler/)
-* all the testing rake task stuff from assert (http://github.com/teaminsight/assert)
-
-That's it. Enjoy.
 
 ## Contributing
 

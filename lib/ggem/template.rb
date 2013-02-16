@@ -9,34 +9,46 @@ module GGem
     end
 
     def save
-      save_folder   # (gems root path)
+      save_folder # (gem root path)
       save_folder "lib/#{@gem.ruby_name}"
-      save_folder "test"
+      save_folder "test/support"
+      save_folder "test/unit"
+      save_folder "log"
+      save_folder "tmp"
 
-      save_file('gitignore.erb', '.gitignore')
-      save_file('Gemfile.erb',   'Gemfile')
-      save_file('gemspec.erb',   "#{@gem.name}.gemspec")
-      save_file('Rakefile.erb',  'Rakefile')
-      save_file('README.md.erb', 'README.md')
-      save_file('LICENSE.erb',   'LICENSE')
+      save_file('gitignore.erb',   '.gitignore')
+      save_file('Gemfile.erb',     'Gemfile')
+      save_file('gemspec.erb',     "#{@gem.name}.gemspec")
+      save_file('Rakefile.erb',    'Rakefile')
+      save_file('README.md.erb',   'README.md')
+      save_file('LICENSE.txt.erb', 'LICENSE.txt')
 
       save_file('lib.rb.erb',         "lib/#{@gem.ruby_name}.rb")
       save_file('lib_version.rb.erb', "lib/#{@gem.ruby_name}/version.rb")
 
-      save_file('test_irb.rb.erb',    'test/irb.rb')
       save_file('test_helper.rb.erb', 'test/helper.rb')
+
+      save_empty_file('log/.gitkeep')
+      save_empty_file('tmp/.gitkeep')
     end
 
     def init
-      `cd #{@gem.path} && git init && git add --all`
+      cmd = "cd #{@gem.path} &&"\
+            " git init && git add --all &&"\
+            " git add -f log/.gitkeep && git add -f tmp/.gitkeep"
+      `#{cmd}`
     end
 
     private
 
     def save_folder(relative_path=nil)
-      FileUtils.mkdir_p(File.join([
-        @gem.path, relative_path
-      ].compact))
+      path = File.join([@gem.path, relative_path].compact)
+      FileUtils.mkdir_p(path)
+    end
+
+    def save_empty_file(relative_path)
+      path = File.join(@gem.path, relative_path)
+      FileUtils.touch(path)
     end
 
     def save_file(source, output)

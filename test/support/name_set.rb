@@ -1,7 +1,6 @@
 module GGem
   module NameSet
 
-
     class Base
       attr_reader :variations, :name, :module_name, :ruby_name
 
@@ -9,7 +8,9 @@ module GGem
         [ '',
           'lib',
           "lib/#{@ruby_name}",
-          'test'
+          'test',
+          'log',
+          'tmp'
         ]
       end
 
@@ -19,17 +20,18 @@ module GGem
           "#{@name}.gemspec",
           "Rakefile",
           "README.md",
-          "LICENSE",
+          "LICENSE.txt",
 
           "lib/#{@ruby_name}.rb",
           "lib/#{@ruby_name}/version.rb",
 
           "test/helper.rb",
-          "test/irb.rb",
+
+          "log/.gitkeep",
+          "tmp/.gitkeep",
         ]
       end
     end
-
 
     class Simple < Base
       def initialize
@@ -40,7 +42,6 @@ module GGem
       end
     end
 
-
     class Underscored < Base
       def initialize
         @variations = ['my_gem', 'my__gem', 'MyGem', 'myGem', 'My_Gem']
@@ -50,7 +51,6 @@ module GGem
       end
     end
 
-
     class HyphenatedOther < Base
       def initialize
         @variations = ['my-gem']
@@ -59,7 +59,6 @@ module GGem
         @ruby_name   = 'my-gem'
       end
     end
-
 
   end
 end
