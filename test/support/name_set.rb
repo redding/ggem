@@ -9,6 +9,9 @@ module GGem
           'lib',
           "lib/#{@ruby_name}",
           'test',
+          'test/support',
+          'test/system',
+          'test/unit',
           'log',
           'tmp'
         ]

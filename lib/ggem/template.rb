@@ -12,6 +12,7 @@ module GGem
       save_folder # (gem root path)
       save_folder "lib/#{@gem.ruby_name}"
       save_folder "test/support"
+      save_folder "test/system"
       save_folder "test/unit"
       save_folder "log"
       save_folder "tmp"
