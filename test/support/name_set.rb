@@ -1,7 +1,6 @@
 module GGem
   module NameSet
 
-
     class Base
       attr_reader :variations, :name, :module_name, :ruby_name
 
@@ -30,7 +29,6 @@ module GGem
       end
     end
 
-
     class Simple < Base
       def initialize
         @variations = ['simple']
@@ -39,7 +37,6 @@ module GGem
         @ruby_name   = 'simple'
       end
     end
-
 
     class Underscored < Base
       def initialize
@@ -50,7 +47,6 @@ module GGem
       end
     end
 
-
     class HyphenatedOther < Base
       def initialize
         @variations = ['my-gem']
@@ -59,7 +55,6 @@ module GGem
         @ruby_name   = 'my-gem'
       end
     end
-
 
   end
 end
