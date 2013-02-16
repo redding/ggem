@@ -4,8 +4,6 @@
 .bundle
 .config
 .yardoc
-.rvmrc
-.rbenv-version
 Gemfile.lock
 InstalledFiles
 _yardoc
