@@ -1,6 +1,7 @@
 require 'assert'
-require 'test/support/name_set'
 require 'ggem'
+
+require 'test/support/name_set'
 
 module GGem
 

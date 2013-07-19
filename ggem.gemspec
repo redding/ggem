@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.description = %q{"Juh Gem", baby! (a generator of gems this is)}
   gem.summary     = %q{"Juh Gem", baby! (a generator of gems this is)}
   gem.homepage    = "http://github.com/redding/ggem"
-  gem.license     = ['MIT']
+  gem.license     = 'MIT'
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
