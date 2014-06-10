@@ -29,6 +29,7 @@ module GGem
           "lib/#{@ruby_name}/version.rb",
 
           "test/helper.rb",
+          "test/support/factory.rb",
 
           "log/.gitkeep",
           "tmp/.gitkeep",
