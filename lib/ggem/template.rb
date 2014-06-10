@@ -27,7 +27,8 @@ module GGem
       save_file('lib.rb.erb',         "lib/#{@gem.ruby_name}.rb")
       save_file('lib_version.rb.erb', "lib/#{@gem.ruby_name}/version.rb")
 
-      save_file('test_helper.rb.erb', 'test/helper.rb')
+      save_file('test_helper.rb.erb',          'test/helper.rb')
+      save_file('test_support_factory.rb.erb', 'test/support/factory.rb')
 
       save_empty_file('log/.gitkeep')
       save_empty_file('tmp/.gitkeep')
