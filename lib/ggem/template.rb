@@ -17,12 +17,12 @@ module GGem
       save_folder "log"
       save_folder "tmp"
 
-      save_file('gitignore.erb',   '.gitignore')
-      save_file('Gemfile.erb',     'Gemfile')
-      save_file('gemspec.erb',     "#{@gem.name}.gemspec")
-      save_file('Rakefile.erb',    'Rakefile')
-      save_file('README.md.erb',   'README.md')
-      save_file('LICENSE.txt.erb', 'LICENSE.txt')
+      save_file('gitignore.erb', '.gitignore')
+      save_file('Gemfile.erb',   'Gemfile')
+      save_file('gemspec.erb',   "#{@gem.name}.gemspec")
+      save_file('Rakefile.erb',  'Rakefile')
+      save_file('README.md.erb', 'README.md')
+      save_file('LICENSE.erb',   'LICENSE')
 
       save_file('lib.rb.erb',         "lib/#{@gem.ruby_name}.rb")
       save_file('lib_version.rb.erb', "lib/#{@gem.ruby_name}/version.rb")
