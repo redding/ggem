@@ -5,7 +5,7 @@ require 'test/support/name_set'
 
 module GGem
 
-  class BaseTests < Assert::Context
+  class SystemTests < Assert::Context
     desc "GGem"
 
     NS_SIMPLE = GGem::NameSet::Simple
@@ -18,8 +18,8 @@ module GGem
 
   end
 
-  class SaveTests < BaseTests
-    desc "when saving gems"
+  class SaveTests < SystemTests
+    desc "when saving new gems"
     setup_once do
       FileUtils.rm_rf(TMP_PATH)
       FileUtils.mkdir_p(TMP_PATH)
