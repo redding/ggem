@@ -54,38 +54,6 @@ module GGem
 
     NoNameError = Class.new(ArgumentError)
 
-    class CLI
-
-      attr_reader :clirb
-
-      def initialize(argv, stdout = nil)
-        @argv = argv
-        @stdout = stdout || $stdout
-
-        @clirb = GGem::CLIRB.new
-      end
-
-      def init
-        @clirb.parse!(@argv)
-      end
-
-      def run
-        gem_name = @clirb.args.first
-        path = GGem::Gem.new(Dir.pwd, gem_name).save!.path
-        @stdout.puts "created gem and initialized git repo in #{path}"
-      rescue NoNameError => exception
-        error = ArgumentError.new("GEM-NAME must be provided")
-        error.set_backtrace(exception.backtrace)
-        raise error
-      end
-
-      def help
-        "Usage: ggem generate [options] GEM-NAME\n\n" \
-        "Options: #{@clirb}"
-      end
-
-    end
-
   end
 
 end

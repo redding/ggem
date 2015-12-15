@@ -1,15 +1,16 @@
 require 'ggem/version'
 require 'ggem/clirb'
-
 require 'ggem/gem'
 
 module GGem
 
   class CLI
 
-    COMMANDS = Hash.new{ |h, k| NullCommand.new(k) }.tap do |h|
-      h['generate'] = GGem::Gem::CLI
-      h['g']        = GGem::Gem::CLI
+    class InvalidCommand;  end
+    class GenerateCommand; end
+    COMMANDS = Hash.new{ |h, k| InvalidCommand.new(k) }.tap do |h|
+      h['generate'] = GenerateCommand
+      h['g']        = GenerateCommand
     end
 
     def self.run(args)
@@ -24,18 +25,18 @@ module GGem
 
     def run(args)
       begin
-        command_name = args.shift
-        command = COMMANDS[command_name].new(args)
-        command.init
-        command.run
+        cmd_name = args.shift
+        cmd = COMMANDS[cmd_name].new(args)
+        cmd.init
+        cmd.run
       rescue CLIRB::HelpExit
-        @stdout.puts command.help
+        @stdout.puts cmd.help
       rescue CLIRB::VersionExit
         @stdout.puts GGem::VERSION
       rescue CLIRB::Error, ArgumentError, InvalidCommandError => exception
         display_debug(exception)
         @stderr.puts "#{exception.message}\n\n"
-        @stdout.puts command.help
+        @stdout.puts cmd.help
         @kernel.exit 1
       rescue StandardError => exception
         @stderr.puts "#{exception.class}: #{exception.message}"
@@ -54,38 +55,71 @@ module GGem
       end
     end
 
+    class InvalidCommand
+
+      attr_reader :name, :argv, :clirb
+
+      def initialize(name)
+        @name  = name
+        @argv  = []
+        @clirb = GGem::CLIRB.new
+      end
+
+      def new(args)
+        @argv = [@name, args].flatten.compact
+        self
+      end
+
+      def init
+        @clirb.parse!(@argv)
+        raise CLIRB::HelpExit if @clirb.args.empty? || @name.to_s.empty?
+      end
+
+      def run
+        raise InvalidCommandError, "'#{self.name}' is not a command."
+      end
+
+      def help
+        "Usage: ggem [COMMAND] [options]\n\n" \
+        "Commands: #{COMMANDS.keys.sort.join(', ')}\n" \
+        "Options: #{@clirb}"
+      end
+
+    end
+
+    InvalidCommandError = Class.new(ArgumentError)
+
+    class GenerateCommand
+
+      attr_reader :clirb
+
+      def initialize(argv, stdout = nil)
+        @argv   = argv
+        @stdout = stdout || $stdout
+        @clirb  = GGem::CLIRB.new
+      end
+
+      def init
+        @clirb.parse!(@argv)
+      end
+
+      def run
+        gem_name = @clirb.args.first
+        path = GGem::Gem.new(Dir.pwd, gem_name).save!.path
+        @stdout.puts "created gem and initialized git repo in #{path}"
+      rescue GGem::Gem::NoNameError => exception
+        error = ArgumentError.new("GEM-NAME must be provided")
+        error.set_backtrace(exception.backtrace)
+        raise error
+      end
+
+      def help
+        "Usage: ggem generate [options] GEM-NAME\n\n" \
+        "Options: #{@clirb}"
+      end
+
+    end
+
   end
-
-  class NullCommand
-    attr_reader :name, :argv, :clirb
-
-    def initialize(name)
-      @name = name
-      @argv = []
-      @clirb = GGem::CLIRB.new
-    end
-
-    def new(args)
-      @argv = [ @name, args ].flatten.compact
-      self
-    end
-
-    def init
-      @clirb.parse!(@argv)
-      raise CLIRB::HelpExit if @clirb.args.empty? || @name.to_s.empty?
-    end
-
-    def run
-      raise InvalidCommandError, "'#{self.name}' is not a command."
-    end
-
-    def help
-      "Usage: ggem [COMMAND] [options]\n\n" \
-      "Commands: #{GGem::CLI::COMMANDS.keys.sort.join(', ')}\n" \
-      "Options: #{@clirb}"
-    end
-  end
-
-  InvalidCommandError = Class.new(ArgumentError)
 
 end
