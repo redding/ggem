@@ -4,4 +4,4 @@
 #
 
 require 'ggem/cli'
-GGem::CLI.run *ARGV
+GGem::CLI.run ARGV

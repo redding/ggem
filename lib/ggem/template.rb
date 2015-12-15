@@ -2,6 +2,7 @@ require 'erb'
 require 'fileutils'
 
 module GGem
+
   class Template
 
     def initialize(ggem)
@@ -67,4 +68,5 @@ module GGem
     end
 
   end
+
 end
