@@ -23,14 +23,23 @@ class GGem::CLI
       assert_equal args, cli_spy.run_called_with
     end
 
+    should "know its commands" do
+      assert_equal 2, COMMANDS.size
+
+      assert_instance_of InvalidCommand, COMMANDS[Factory.string]
+
+      assert_equal GenerateCommand, COMMANDS['generate']
+      assert_equal GenerateCommand, COMMANDS['g']
+    end
+
   end
 
   class InitTests < UnitTests
     desc "when init"
     setup do
       @kernel_spy = KernelSpy.new
-      @stdout = IOSpy.new
-      @stderr = IOSpy.new
+      @stdout     = IOSpy.new
+      @stderr     = IOSpy.new
 
       @cli = @cli_class.new(@kernel_spy, @stdout, @stderr)
     end
@@ -38,19 +47,12 @@ class GGem::CLI
 
     should have_imeths :run
 
-    should "know its commands" do
-      assert_equal 2, COMMANDS.size
-
-      assert_equal GGem::Gem::CLI, COMMANDS['generate']
-      assert_equal GGem::Gem::CLI, COMMANDS['g']
-    end
-
   end
 
   class RunSetupTests < InitTests
     setup do
       @command_name = Factory.string
-      @argv = [ @command_name, Factory.string ]
+      @argv = [@command_name, Factory.string]
 
       @command_class = Class.new
       COMMANDS[@command_name] = @command_class
@@ -58,7 +60,7 @@ class GGem::CLI
       @command_spy = CommandSpy.new
       Assert.stub(@command_class, :new).with(@argv){ @command_spy }
 
-      @null_command = GGem::NullCommand.new(@command_name)
+      @invalid_command = InvalidCommand.new(@command_name)
     end
     teardown do
       COMMANDS.delete(@command_name)
@@ -89,8 +91,8 @@ class GGem::CLI
       @cli.run([])
     end
 
-    should "have output its null commands help" do
-      assert_equal @null_command.help, @stdout.read
+    should "output the invalid command's help" do
+      assert_equal @invalid_command.help, @stdout.read
       assert_empty @stderr.read
     end
 
@@ -108,10 +110,10 @@ class GGem::CLI
       @cli.run(@argv)
     end
 
-    should "have output that its invalid and its null commands help" do
+    should "output that it is invalid and output the invalid command's help" do
       exp = "'#{@name}' is not a command.\n\n"
       assert_equal exp, @stderr.read
-      assert_equal @null_command.help, @stdout.read
+      assert_equal @invalid_command.help, @stdout.read
     end
 
     should "have unsuccessfully exited" do
@@ -126,8 +128,8 @@ class GGem::CLI
       @cli.run([ '--help' ])
     end
 
-    should "have output its null commands help" do
-      assert_equal @null_command.help, @stdout.read
+    should "output the invalid command's help" do
+      assert_equal @invalid_command.help, @stdout.read
       assert_empty @stderr.read
     end
 
@@ -174,28 +176,30 @@ class GGem::CLI
 
   end
 
-  class NullCommandTests < UnitTests
-    desc "NullCommand"
+  class InvalidCommandTests < UnitTests
+    desc "InvalidCommand"
     setup do
       @name = Factory.string
-      @null_command = GGem::NullCommand.new(@name)
+      @command_class = InvalidCommand
+      @cmd = @command_class.new(@name)
     end
-    subject{ @null_command }
+    subject{ @cmd }
 
     should have_readers :name, :argv, :clirb
     should have_imeths :new, :init, :run, :help
 
-    should "know its name, argv and clirb" do
+    should "know its attrs" do
       assert_equal @name, subject.name
-      assert_equal [], subject.argv
+      assert_equal [],    subject.argv
+
       assert_instance_of GGem::CLIRB, subject.clirb
     end
 
     should "set its argv and return itself using `new`" do
-      args = [ Factory.string, Factory.string ]
+      args = [Factory.string, Factory.string]
       result = subject.new(args)
       assert_same subject, result
-      assert_equal [ @name, args ].flatten, subject.argv
+      assert_equal [@name, args].flatten, subject.argv
     end
 
     should "parse its argv when `init`" do
@@ -206,17 +210,17 @@ class GGem::CLI
     end
 
     should "raise a help exit if its argv is empty when `init`" do
-      null_command = GGem::NullCommand.new(nil)
-      null_command.new([])
-      assert_raises(GGem::CLIRB::HelpExit){ null_command.init }
+      cmd = @command_class.new(nil)
+      cmd.new([])
+      assert_raises(GGem::CLIRB::HelpExit){ cmd.init }
 
-      null_command = GGem::NullCommand.new("")
-      null_command.new([])
-      assert_raises(GGem::CLIRB::HelpExit){ null_command.init }
+      cli = @command_class.new("")
+      cli.new([])
+      assert_raises(GGem::CLIRB::HelpExit){ cli.init }
     end
 
     should "raise an invalid command error when run" do
-      assert_raises(GGem::InvalidCommandError){ subject.run }
+      assert_raises(InvalidCommandError){ subject.run }
     end
 
     should "know its help" do
@@ -224,6 +228,74 @@ class GGem::CLI
             "Commands: #{COMMANDS.keys.sort.join(', ')}\n" \
             "Options: #{subject.clirb}"
       assert_equal exp, subject.help
+    end
+
+  end
+
+  class GenerateCommandTests < UnitTests
+    desc "GenerateCommand"
+    setup do
+      @name = Factory.string
+
+      @path = Factory.dir_path
+      Assert.stub(Dir, :pwd){ @path }
+
+      @gem_new_called_with = []
+      @gem_spy = GemSpy.new
+      @gem_class = GGem::Gem
+      Assert.stub(@gem_class, :new) do |*args|
+        @gem_new_called_with = args
+        @gem_spy
+      end
+
+      @stdout = IOSpy.new
+      @command_class = GenerateCommand
+      @cmd = @command_class.new([@name], @stdout)
+    end
+    subject{ @cmd }
+
+    should have_readers :clirb
+
+    should "know its CLI.RB" do
+      assert_instance_of GGem::CLIRB, subject.clirb
+    end
+
+    should "know its help" do
+      exp = "Usage: ggem generate [options] GEM-NAME\n\n" \
+            "Options: #{subject.clirb}"
+      assert_equal exp, subject.help
+    end
+
+    should "parse its args when `init`" do
+      subject.init
+      assert_equal [@name], subject.clirb.args
+    end
+
+    should "init and save a gem when run" do
+      subject.init
+      subject.run
+
+      assert_equal [@path, @name], @gem_new_called_with
+      assert_true @gem_spy.save_called
+
+      exp = "created gem and initialized git repo in #{@gem_spy.path}\n"
+      assert_equal exp, @stdout.read
+    end
+
+    should "re-raise a specific argument error on gem 'no name' errors" do
+      Assert.stub(@gem_class, :new) { raise GGem::Gem::NoNameError }
+      err = nil
+      begin
+        cmd = @command_class.new([])
+        cmd.init
+        cmd.run
+      rescue ArgumentError => err
+      end
+
+      assert_not_nil err
+      exp = "GEM-NAME must be provided"
+      assert_equal exp, err.message
+      assert_not_empty err.backtrace
     end
 
   end
@@ -285,6 +357,23 @@ class GGem::CLI
     def read
       @io.rewind
       @io.read
+    end
+  end
+
+  class GemSpy
+    attr_reader :save_called
+
+    def initialize
+      @save_called = false
+    end
+
+    def save!
+      @save_called = true
+      self
+    end
+
+    def path
+      @path ||= Factory.path
     end
   end
 
