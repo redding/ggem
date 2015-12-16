@@ -38,6 +38,8 @@ module GGem
         @stderr.puts "#{exception.message}\n\n"
         @stdout.puts cmd.help
         @kernel.exit 1
+      rescue CommandExitError
+        @kernel.exit 1
       rescue StandardError => exception
         @stderr.puts "#{exception.class}: #{exception.message}"
         @stderr.puts exception.backtrace.join("\n")
@@ -54,6 +56,9 @@ module GGem
         @stderr.puts exception.backtrace.join("\n")
       end
     end
+
+    InvalidCommandError = Class.new(ArgumentError)
+    CommandExitError    = Class.new(RuntimeError)
 
     class InvalidCommand
 
@@ -86,8 +91,6 @@ module GGem
       end
 
     end
-
-    InvalidCommandError = Class.new(ArgumentError)
 
     class GenerateCommand
 
