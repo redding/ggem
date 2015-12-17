@@ -74,8 +74,7 @@ class GGem::CLI
       @cli.run(@argv)
     end
 
-    should "have init and run the command" do
-      assert_true @command_spy.init_called
+    should "have run the command" do
       assert_true @command_spy.run_called
     end
 
@@ -125,7 +124,7 @@ class GGem::CLI
   class RunWithCommandExitErrorTests < RunSetupTests
     desc "and run with a command that error exits"
     setup do
-      Assert.stub(@command_spy, :init){ raise CommandExitError }
+      Assert.stub(@command_spy, :run){ raise CommandExitError }
       @cli.run(@argv)
     end
 
@@ -200,7 +199,7 @@ class GGem::CLI
     subject{ @cmd }
 
     should have_readers :name, :argv, :clirb
-    should have_imeths :new, :init, :run, :help
+    should have_imeths :new, :run, :help
 
     should "know its attrs" do
       assert_equal @name, subject.name
@@ -216,25 +215,18 @@ class GGem::CLI
       assert_equal [@name, args].flatten, subject.argv
     end
 
-    should "parse its argv when `init`" do
-      subject.new([ '--help' ])
-      assert_raises(GGem::CLIRB::HelpExit){ subject.init }
-      subject.new([ '--version' ])
-      assert_raises(GGem::CLIRB::VersionExit){ subject.init }
+    should "parse its argv on run" do
+      assert_raises(GGem::CLIRB::HelpExit){ subject.new([ '--help' ]).run }
+      assert_raises(GGem::CLIRB::VersionExit){ subject.new([ '--version' ]).run }
     end
 
-    should "raise a help exit if its argv is empty when `init`" do
-      cmd = @command_class.new(nil)
-      cmd.new([])
-      assert_raises(GGem::CLIRB::HelpExit){ cmd.init }
-
-      cli = @command_class.new("")
-      cli.new([])
-      assert_raises(GGem::CLIRB::HelpExit){ cli.init }
+    should "raise a help exit if its argv is empty" do
+      cmd = @command_class.new([nil, ''].choice)
+      assert_raises(GGem::CLIRB::HelpExit){ cmd.new([]).run }
     end
 
     should "raise an invalid command error when run" do
-      assert_raises(InvalidCommandError){ subject.run }
+      assert_raises(InvalidCommandError){ subject.new([Factory.string]).run }
     end
 
     should "know its help" do
@@ -280,14 +272,10 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "parse its args when `init`" do
-      subject.init
-      assert_equal [@name], subject.clirb.args
-    end
-
-    should "init and save a gem when run" do
-      subject.init
+    should "parse its args and save a gem when run" do
       subject.run
+
+      assert_equal [@name], subject.clirb.args
 
       assert_equal [@path, @name], @gem_new_called_with
       assert_true @gem_spy.save_called
@@ -301,7 +289,6 @@ class GGem::CLI
       err = nil
       begin
         cmd = @command_class.new([])
-        cmd.init
         cmd.run
       rescue ArgumentError => err
       end
@@ -327,15 +314,10 @@ class GGem::CLI
   end
 
   class CommandSpy
-    attr_reader :init_called, :run_called
+    attr_reader :run_called
 
     def initialize
-      @init_called = false
       @run_called = false
-    end
-
-    def init
-      @init_called = true
     end
 
     def run

@@ -1,6 +1,5 @@
 require 'ggem/version'
 require 'ggem/clirb'
-require 'ggem/gem'
 
 module GGem
 
@@ -27,7 +26,6 @@ module GGem
       begin
         cmd_name = args.shift
         cmd = COMMANDS[cmd_name].new(args)
-        cmd.init
         cmd.run
       rescue CLIRB::HelpExit
         @stdout.puts cmd.help
@@ -75,12 +73,9 @@ module GGem
         self
       end
 
-      def init
+      def run
         @clirb.parse!(@argv)
         raise CLIRB::HelpExit if @clirb.args.empty? || @name.to_s.empty?
-      end
-
-      def run
         raise InvalidCommandError, "'#{self.name}' is not a command."
       end
 
@@ -102,13 +97,10 @@ module GGem
         @clirb  = GGem::CLIRB.new
       end
 
-      def init
-        @clirb.parse!(@argv)
-      end
-
       def run
-        gem_name = @clirb.args.first
-        path = GGem::Gem.new(Dir.pwd, gem_name).save!.path
+        @clirb.parse!(@argv)
+        require 'ggem/gem'
+        path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
         @stdout.puts "created gem and initialized git repo in #{path}"
       rescue GGem::Gem::NoNameError => exception
         error = ArgumentError.new("GEM-NAME must be provided")
