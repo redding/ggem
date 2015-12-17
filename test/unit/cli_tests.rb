@@ -8,6 +8,10 @@ class GGem::CLI
   class UnitTests < Assert::Context
     desc "GGem::CLI"
     setup do
+      @kernel_spy = KernelSpy.new
+      @stdout     = IOSpy.new
+      @stderr     = IOSpy.new
+
       @cli_class = GGem::CLI
     end
     subject{ @cli_class }
@@ -37,10 +41,6 @@ class GGem::CLI
   class InitTests < UnitTests
     desc "when init"
     setup do
-      @kernel_spy = KernelSpy.new
-      @stdout     = IOSpy.new
-      @stderr     = IOSpy.new
-
       @cli = @cli_class.new(@kernel_spy, @stdout, @stderr)
     end
     subject{ @cli }
@@ -118,6 +118,20 @@ class GGem::CLI
 
     should "have unsuccessfully exited" do
       assert_equal 1, @kernel_spy.exit_status
+    end
+
+  end
+
+  class RunWithCommandExitErrorTests < RunSetupTests
+    desc "and run with a command that error exits"
+    setup do
+      Assert.stub(@command_spy, :init){ raise CommandExitError }
+      @cli.run(@argv)
+    end
+
+    should "have unsuccessfully exited with no stderr output" do
+      assert_equal 1, @kernel_spy.exit_status
+      assert_empty @stderr.read
     end
 
   end
