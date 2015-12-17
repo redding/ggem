@@ -99,13 +99,15 @@ module GGem
 
       def run
         @clirb.parse!(@argv)
-        require 'ggem/gem'
-        path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
-        @stdout.puts "created gem and initialized git repo in #{path}"
-      rescue GGem::Gem::NoNameError => exception
-        error = ArgumentError.new("GEM-NAME must be provided")
-        error.set_backtrace(exception.backtrace)
-        raise error
+        begin
+          require 'ggem/gem'
+          path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
+          @stdout.puts "created gem and initialized git repo in #{path}"
+        rescue GGem::Gem::NoNameError => exception
+          error = ArgumentError.new("GEM-NAME must be provided")
+          error.set_backtrace(exception.backtrace)
+          raise error
+        end
       end
 
       def help
