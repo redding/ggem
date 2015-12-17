@@ -1,8 +1,6 @@
 require "assert"
 require "ggem/gem"
 
-require 'ggem/clirb'
-
 class GGem::Gem
 
   class UnitTests < Assert::Context
