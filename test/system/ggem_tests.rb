@@ -2,17 +2,20 @@ require 'assert'
 require 'ggem'
 
 require 'test/support/name_set'
+require 'test/support/system_tests_helpers'
 
 module GGem
 
   class SystemTests < Assert::Context
+    extend SystemTestsHelpers
+
     desc "GGem"
 
     NS_SIMPLE = GGem::NameSet::Simple
     NS_UNDER  = GGem::NameSet::Underscored
     NS_HYPHEN = GGem::NameSet::HyphenatedOther
 
-    [ NS_SIMPLE, NS_UNDER, NS_HYPHEN ].each do |ns|
+    [NS_SIMPLE, NS_UNDER, NS_HYPHEN].each do |ns|
       should generate_name_set(ns.new)
     end
 

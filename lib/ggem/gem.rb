@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'ggem/clirb'
 require 'ggem/template'
 
 module GGem
