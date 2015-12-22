@@ -6,8 +6,11 @@ require 'pathname'
 ROOT_PATH = Pathname.new(File.expand_path('../..', __FILE__))
 $LOAD_PATH.unshift(ROOT_PATH.to_s)
 TMP_PATH = ROOT_PATH.join('tmp')
+TEST_SUPPORT_PATH = ROOT_PATH.join('test/support')
 
 # require pry for debugging (`binding.pry`)
 require 'pry'
 
 require 'test/support/factory'
+
+ENV['SCMD_TEST_MODE'] = '1'
