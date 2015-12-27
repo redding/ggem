@@ -41,7 +41,7 @@ class GGem::Gemspec
     end
     subject{ @spec }
 
-    should have_readers :path, :name, :version
+    should have_readers :path, :name, :version, :version_tag
     should have_readers :gem_file_name, :gem_file, :push_host
     should have_imeths :run_build_cmd, :run_install_cmd, :run_push_cmd
 
@@ -49,8 +49,9 @@ class GGem::Gemspec
       exp = @gem1_root_path.join('gem1.gemspec')
       assert_equal exp, subject.path
 
-      assert_equal 'gem1',  subject.name
-      assert_equal '0.1.0', subject.version.to_s
+      assert_equal 'gem1',   subject.name
+      assert_equal '0.1.0',  subject.version.to_s
+      assert_equal 'v0.1.0', subject.version_tag
 
       exp = "#{subject.name}-#{subject.version}.gem"
       assert_equal exp, subject.gem_file_name
