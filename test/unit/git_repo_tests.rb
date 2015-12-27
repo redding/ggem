@@ -1,7 +1,7 @@
 require "assert"
 require "ggem/git_repo"
 
-require 'scmd'
+require 'test/support/cmd_tests_helpers'
 
 class GGem::GitRepo
 
@@ -29,6 +29,9 @@ class GGem::GitRepo
 
     should have_readers :path
     should have_imeths :run_init_cmd
+    should have_imeths :run_validate_clean_cmd, :run_validate_committed_cmd
+    should have_imeths :run_push_cmd
+    should have_imeths :run_add_version_tag_cmd, :run_rm_tag_cmd
 
     should "know its path" do
       assert_equal @repo_path, subject.path
@@ -37,16 +40,7 @@ class GGem::GitRepo
   end
 
   class CmdTests < InitTests
-    setup do
-      ENV['SCMD_TEST_MODE'] = '1'
-
-      @cmd_spy = nil
-      Scmd.reset
-    end
-    teardown do
-      Scmd.reset
-      ENV.delete('SCMD_TEST_MODE')
-    end
+    include GGem::CmdTestsHelpers
 
   end
 
@@ -60,30 +54,107 @@ class GGem::GitRepo
     end
 
     should "run a system cmd to init the repo and add any existing files" do
-      cmd_str, exitstatus, stdout = subject.run_init_cmd
-      assert_equal @exp_cmds_run, Scmd.calls.map(&:cmd_str)
-
-      assert_equal Scmd.calls.first.cmd_str,        cmd_str
-      assert_equal Scmd.calls.first.cmd.exitstatus, exitstatus
-      assert_equal Scmd.calls.first.cmd.stdout,     stdout
+      assert_exp_cmds_run{ subject.run_init_cmd }
     end
 
     should "complain if any system cmds are not successful" do
-      err_cmd_str = @exp_cmds_run.choice
-      Scmd.add_command(err_cmd_str) do |cmd|
-        cmd.exitstatus = 1
-        cmd.stderr     = Factory.string
-        @cmd_spy       = cmd
-      end
-      err = nil
-      begin
-        subject.run_init_cmd
-      rescue StandardError => err
-      end
+      assert_exp_cmds_error(CmdError){ subject.run_init_cmd }
+    end
 
-      assert_kind_of CmdError, err
-      exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
-      assert_equal exp, err.message
+  end
+
+  class RunValidateCleanCmdTests < CmdTests
+    desc "`run_validate_clean_cmd`"
+    setup do
+      @exp_cmds_run = [
+        "cd #{@repo_path} && git diff --exit-code"
+      ]
+    end
+
+    should "run a system cmd to see if there are any diffs" do
+      assert_exp_cmds_run{ subject.run_validate_clean_cmd }
+    end
+
+    should "complain if any system cmds are not successful" do
+      assert_exp_cmds_error(CmdError){ subject.run_validate_clean_cmd }
+    end
+
+  end
+
+  class RunValidateCommittedCmdTests < CmdTests
+    desc "`run_validate_committed_cmd`"
+    setup do
+      @exp_cmds_run = [
+        "cd #{@repo_path} && git diff-index --quiet --cached HEAD"
+      ]
+    end
+
+    should "run a system cmd to see if there is anything still uncommitted" do
+      assert_exp_cmds_run{ subject.run_validate_committed_cmd }
+    end
+
+    should "complain if any system cmds are not successful" do
+      assert_exp_cmds_error(CmdError){ subject.run_validate_committed_cmd }
+    end
+
+  end
+
+  class RunPushCmdTests < CmdTests
+    desc "`run_push_cmd`"
+    setup do
+      @exp_cmds_run = [
+        "cd #{@repo_path} && git push",
+        "cd #{@repo_path} && git push --tags"
+      ]
+    end
+
+    should "run a system cmds to push commits/tags" do
+      assert_exp_cmds_run{ subject.run_push_cmd }
+    end
+
+    should "complain if any system cmds are not successful" do
+      assert_exp_cmds_error(CmdError){ subject.run_push_cmd }
+    end
+
+  end
+
+  class RunAddVersionTagCmdTests < CmdTests
+    desc "`run_add_version_tag_cmd`"
+    setup do
+      @version = Factory.string
+      @tag     = Factory.string
+
+      @exp_cmds_run = [
+        "cd #{@repo_path} && git tag -a -m \"Version #{@version}\" #{@tag}"
+      ]
+    end
+
+    should "run a system cmd to add a tag for a given version/tag string" do
+      assert_exp_cmds_run{ subject.run_add_version_tag_cmd(@version, @tag) }
+    end
+
+    should "complain if any system cmds are not successful" do
+      assert_exp_cmds_error(CmdError){ subject.run_add_version_tag_cmd(@version, @tag) }
+    end
+
+  end
+
+  class RunRmTagCmdTests < CmdTests
+    desc "`run_rm_tag_cmd`"
+    setup do
+      @tag = Factory.string
+
+      @exp_cmds_run = [
+        "cd #{@repo_path} && git tag -d #{@tag}"
+      ]
+    end
+
+    should "run a system cmd to remove a tag with the given tag string" do
+      assert_exp_cmds_run{ subject.run_rm_tag_cmd(@tag) }
+    end
+
+    should "complain if any system cmds are not successful" do
+      assert_exp_cmds_error(CmdError){ subject.run_rm_tag_cmd(@tag) }
     end
 
   end

@@ -1,8 +1,8 @@
 require "assert"
 require "ggem/gemspec"
 
-require 'scmd'
 require 'ggem/version'
+require 'test/support/cmd_tests_helpers'
 
 class GGem::Gemspec
 
@@ -90,18 +90,10 @@ class GGem::Gemspec
   end
 
   class CmdTests < InitTests
+    include GGem::CmdTestsHelpers
     setup do
-      ENV['SCMD_TEST_MODE'] = '1'
-
       @exp_build_path = @gem1_root_path.join(subject.gem_file_name)
       @exp_pkg_path   = @gem1_root_path.join(@gemspec_class::BUILD_TO_DIRNAME, subject.gem_file_name)
-
-      @cmd_spy = nil
-      Scmd.reset
-    end
-    teardown do
-      Scmd.reset
-      ENV.delete('SCMD_TEST_MODE')
     end
 
   end
@@ -117,30 +109,11 @@ class GGem::Gemspec
     end
 
     should "run system cmds to build the gem" do
-      cmd_str, exitstatus, stdout = subject.run_build_cmd
-      assert_equal @exp_cmds_run, Scmd.calls.map(&:cmd_str)
-
-      assert_equal Scmd.calls.first.cmd_str,        cmd_str
-      assert_equal Scmd.calls.first.cmd.exitstatus, exitstatus
-      assert_equal Scmd.calls.first.cmd.stdout,     stdout
+      assert_exp_cmds_run{ subject.run_build_cmd }
     end
 
     should "complain if any system cmds are not successful" do
-      err_cmd_str = @exp_cmds_run.choice
-      Scmd.add_command(err_cmd_str) do |cmd|
-        cmd.exitstatus = 1
-        cmd.stderr     = Factory.string
-        @cmd_spy       = cmd
-      end
-      err = nil
-      begin
-        subject.run_build_cmd
-      rescue StandardError => err
-      end
-
-      assert_kind_of CmdError, err
-      exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
-      assert_equal exp, err.message
+      assert_exp_cmds_error(CmdError){ subject.run_build_cmd }
     end
 
   end
@@ -152,30 +125,11 @@ class GGem::Gemspec
     end
 
     should "run a system cmd to install the gem" do
-      cmd_str, exitstatus, stdout = subject.run_install_cmd
-      assert_equal @exp_cmds_run, Scmd.calls.map(&:cmd_str)
-
-      assert_equal Scmd.calls.last.cmd_str,        cmd_str
-      assert_equal Scmd.calls.last.cmd.exitstatus, exitstatus
-      assert_equal Scmd.calls.last.cmd.stdout,     stdout
+      assert_exp_cmds_run{ subject.run_install_cmd }
     end
 
     should "complain if the system cmd is not successful" do
-      err_cmd_str = @exp_cmds_run.choice
-      Scmd.add_command(err_cmd_str) do |cmd|
-        cmd.exitstatus = 1
-        cmd.stderr     = Factory.string
-        @cmd_spy       = cmd
-      end
-      err = nil
-      begin
-        subject.run_install_cmd
-      rescue StandardError => err
-      end
-
-      assert_kind_of CmdError, err
-      exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
-      assert_equal exp, err.message
+      assert_exp_cmds_error(CmdError){ subject.run_install_cmd }
     end
 
   end
@@ -187,30 +141,11 @@ class GGem::Gemspec
     end
 
     should "run a system cmd to push the gem to the push host" do
-      cmd_str, exitstatus, stdout = subject.run_push_cmd
-      assert_equal @exp_cmds_run, Scmd.calls.map(&:cmd_str)
-
-      assert_equal Scmd.calls.last.cmd_str,        cmd_str
-      assert_equal Scmd.calls.last.cmd.exitstatus, exitstatus
-      assert_equal Scmd.calls.last.cmd.stdout,     stdout
+      assert_exp_cmds_run{ subject.run_push_cmd }
     end
 
     should "complain if the system cmd is not successful" do
-      err_cmd_str = @exp_cmds_run.choice
-      Scmd.add_command(err_cmd_str) do |cmd|
-        cmd.exitstatus = 1
-        cmd.stderr     = Factory.string
-        @cmd_spy       = cmd
-      end
-      err = nil
-      begin
-        subject.run_push_cmd
-      rescue StandardError => err
-      end
-
-      assert_kind_of CmdError, err
-      exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
-      assert_equal exp, err.message
+      assert_exp_cmds_error(CmdError){ subject.run_push_cmd }
     end
 
   end
