@@ -31,7 +31,7 @@ class GGem::CLI
     end
 
     should "know its commands" do
-      assert_equal 6, COMMANDS.size
+      assert_equal 7, COMMANDS.size
 
       assert_instance_of InvalidCommand, COMMANDS[Factory.string]
 
@@ -41,6 +41,7 @@ class GGem::CLI
       assert_equal InstallCommand,  COMMANDS['install']
       assert_equal PushCommand,     COMMANDS['push']
       assert_equal TagCommand,      COMMANDS['tag']
+      assert_equal ReleaseCommand,  COMMANDS['release']
     end
 
   end
@@ -64,7 +65,7 @@ class GGem::CLI
       @command_class = Class.new
       COMMANDS[@command_name] = @command_class
 
-      @command_spy = CommandSpy.new
+      @command_spy = CommandSpy.new(@argv)
       Assert.stub(@command_class, :new).with(@argv){ @command_spy }
 
       @invalid_command = InvalidCommand.new(@command_name)
@@ -667,6 +668,52 @@ class GGem::CLI
 
   end
 
+  class ReleaseCommandTests < IOCommandTests
+    include GemspecSpyTests
+
+    desc "ReleaseCommand"
+    setup do
+      @tag_spy = nil
+      Assert.stub(TagCommand, :new){ |*args| @tag_spy = CommandSpy.new(*args) }
+
+      @push_spy = nil
+      Assert.stub(PushCommand, :new){ |*args| @push_spy = CommandSpy.new(*args) }
+
+      @command_class = ReleaseCommand
+      @argv = []
+      @cmd = @command_class.new(@argv, @stdout, @stderr)
+    end
+
+    should "be a gemspec command" do
+      assert_kind_of GemspecCommand, subject
+    end
+
+    should "know its help" do
+      exp = "Usage: ggem release [options]\n\n" \
+            "Options: #{subject.clirb}\n" \
+            "Description:\n" \
+            "  Tag #{@spec_spy.version_tag} and push built #{@spec_spy.gem_file_name} to " \
+               "#{@spec_spy.push_host} (equivalent to `ggem tag && ggem push`)"
+      assert_equal exp, subject.help
+    end
+
+    should "build a tag and push command using its argv" do
+      [@tag_spy, @push_spy].each do |spy|
+        assert spy
+        assert_equal @argv, spy.argv
+      end
+    end
+
+    should "call the tag/push command's run when run" do
+      subject.run
+
+      [@tag_spy, @push_spy].each do |spy|
+        assert_true spy.run_called
+      end
+    end
+
+  end
+
   class CLISpy
     attr_reader :run_called_with
 
@@ -680,9 +727,10 @@ class GGem::CLI
   end
 
   class CommandSpy
-    attr_reader :run_called
+    attr_reader :argv, :stdout, :stderr, :run_called
 
-    def initialize
+    def initialize(argv, stdout = nil, stderr = nil)
+      @argv, @stdout, @stderr = argv, stdout, stderr
       @run_called = false
     end
 

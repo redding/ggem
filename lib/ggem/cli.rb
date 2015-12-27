@@ -12,6 +12,7 @@ module GGem
     class InstallCommand;  end
     class PushCommand;     end
     class TagCommand;      end
+    class ReleaseCommand;  end
     COMMANDS = Hash.new{ |h, k| InvalidCommand.new(k) }.tap do |h|
       h['generate'] = GenerateCommand
       h['g']        = GenerateCommand
@@ -19,6 +20,7 @@ module GGem
       h['install']  = InstallCommand
       h['push']     = PushCommand
       h['tag']      = TagCommand
+      h['release']  = ReleaseCommand
     end
 
     def self.run(args)
@@ -187,6 +189,7 @@ module GGem
 
       def run
         super
+
         begin
           require 'ggem/gem'
           path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
@@ -345,6 +348,32 @@ module GGem
         "Options: #{@clirb}\n" \
         "Description:\n" \
         "  Tag #{@spec.version_tag}; push git commits and tags"
+      end
+
+    end
+
+    class ReleaseCommand
+      include GemspecCommand
+
+      def initialize(*args)
+        super
+
+        @tag_command  = TagCommand.new(*args)
+        @push_command = PushCommand.new(*args)
+      end
+
+      def run
+        super
+        @tag_command.run
+        @push_command.run
+      end
+
+      def help
+        "Usage: ggem release [options]\n\n" \
+        "Options: #{@clirb}\n" \
+        "Description:\n" \
+        "  Tag #{@spec.version_tag} and push built #{@spec.gem_file_name} to " \
+           "#{@spec.push_host} (equivalent to `ggem tag && ggem push`)"
       end
 
     end
