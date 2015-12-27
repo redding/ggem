@@ -38,11 +38,6 @@ module GGem
     should create_paths(NS_UNDER.new)
     should create_paths(NS_HYPHEN.new)
 
-    should "init a git repo in the gem path" do
-      exp_path = File.join(TMP_PATH, NS_SIMPLE.new.name, '.git')
-      assert File.exists?(exp_path), ".git repo config doesn't exist"
-    end
-
   end
 
 end

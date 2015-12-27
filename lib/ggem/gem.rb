@@ -13,8 +13,7 @@ module GGem
     end
 
     def save!
-      Template.new(self).tap{ |t| t.save; t.init }
-      self
+      Template.new(self).save
     end
 
     def path; File.join(@root_path, @name); end
@@ -41,7 +40,7 @@ module GGem
       name.gsub(*und_camelcs).gsub(*rm_dup_und).sub(*rm_lead_und).downcase
     end
 
-    def transform_name(conditions={}, &block)
+    def transform_name(conditions = {}, &block)
       n = (block ? block.call(self.name) : self.name)
       conditions.each do |on, glue|
         if (a = n.split(on)).size > 1

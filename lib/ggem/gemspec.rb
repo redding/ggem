@@ -30,29 +30,29 @@ module GGem
     end
 
     def run_build_cmd
-      run_cmd("gem build --verbose #{@path}", BuildError).tap do |c|
+      run_cmd("gem build --verbose #{@path}").tap do
         gem_path = @root.join(@gem_file_name)
-        run_cmd("mkdir -p #{@built_gem_path.dirname}", BuildError)
-        run_cmd("mv #{gem_path} #{@built_gem_path}",   BuildError)
+        run_cmd("mkdir -p #{@built_gem_path.dirname}")
+        run_cmd("mv #{gem_path} #{@built_gem_path}")
       end
     end
 
     def run_install_cmd
-      run_cmd("gem install #{@built_gem_path}", InstallError)
+      run_cmd("gem install #{@built_gem_path}")
     end
 
     def run_push_cmd
-      run_cmd("gem push #{@built_gem_path} --host #{@push_host}", PushError)
+      run_cmd("gem push #{@built_gem_path} --host #{@push_host}")
     end
 
     private
 
-    def run_cmd(cmd_string, exception_class)
+    def run_cmd(cmd_string)
       cmd = Scmd.new(cmd_string)
       cmd.run
       if !cmd.success?
-        raise exception_class, "#{cmd_string}\n" \
-                               "#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
+        raise CmdError, "#{cmd_string}\n" \
+                        "#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
       end
       [cmd_string, cmd.exitstatus, cmd.stdout]
     end
@@ -78,9 +78,6 @@ module GGem
     NotFoundError = Class.new(ArgumentError)
     LoadError     = Class.new(ArgumentError)
     CmdError      = Class.new(RuntimeError)
-    BuildError    = Class.new(CmdError)
-    InstallError  = Class.new(CmdError)
-    PushError     = Class.new(CmdError)
 
   end
 

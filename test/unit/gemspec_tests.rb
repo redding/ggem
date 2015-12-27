@@ -1,6 +1,7 @@
 require "assert"
 require "ggem/gemspec"
 
+require 'scmd'
 require 'ggem/version'
 
 class GGem::Gemspec
@@ -28,9 +29,6 @@ class GGem::Gemspec
       assert subject::NotFoundError < ArgumentError
       assert subject::LoadError < ArgumentError
       assert subject::CmdError < RuntimeError
-      assert subject::BuildError < CmdError
-      assert subject::InstallError < CmdError
-      assert subject::PushError < CmdError
     end
 
   end
@@ -93,6 +91,8 @@ class GGem::Gemspec
 
   class CmdTests < InitTests
     setup do
+      ENV['SCMD_TEST_MODE'] = '1'
+
       @exp_build_path = @gem1_root_path.join(subject.gem_file_name)
       @exp_pkg_path   = @gem1_root_path.join(@gemspec_class::BUILD_TO_DIRNAME, subject.gem_file_name)
 
@@ -101,6 +101,7 @@ class GGem::Gemspec
     end
     teardown do
       Scmd.reset
+      ENV.delete('SCMD_TEST_MODE')
     end
 
   end
@@ -137,7 +138,7 @@ class GGem::Gemspec
       rescue StandardError => err
       end
 
-      assert_kind_of BuildError, err
+      assert_kind_of CmdError, err
       exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
       assert_equal exp, err.message
     end
@@ -172,7 +173,7 @@ class GGem::Gemspec
       rescue StandardError => err
       end
 
-      assert_kind_of InstallError, err
+      assert_kind_of CmdError, err
       exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
       assert_equal exp, err.message
     end
@@ -207,7 +208,7 @@ class GGem::Gemspec
       rescue StandardError => err
       end
 
-      assert_kind_of PushError, err
+      assert_kind_of CmdError, err
       exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
       assert_equal exp, err.message
     end
