@@ -297,7 +297,9 @@ module GGem
       def run
         super
         notify_build
-        notify("#{@spec.name} #{@spec.version} pushed to #{@spec.push_host}") do
+
+        @stdout.puts "Pushing #{@spec.gem_file_name} to #{@spec.push_host}..."
+        notify("#{@spec.gem_file_name} received.") do
           @spec.run_push_cmd
         end
       end
@@ -347,7 +349,7 @@ module GGem
         "Usage: ggem tag [options]\n\n" \
         "Options: #{@clirb}\n" \
         "Description:\n" \
-        "  Tag #{@spec.version_tag}; push git commits and tags"
+        "  Tag #{@spec.version_tag} and push git commits/tags"
       end
 
     end
@@ -373,7 +375,8 @@ module GGem
         "Options: #{@clirb}\n" \
         "Description:\n" \
         "  Tag #{@spec.version_tag} and push built #{@spec.gem_file_name} to " \
-           "#{@spec.push_host} (equivalent to `ggem tag && ggem push`)"
+           "#{@spec.push_host}\n" \
+        "  (macro for running `ggem tag && ggem push`)"
       end
 
     end
