@@ -9,7 +9,7 @@ module GGem
     DEFAULT_PUSH_HOST  = 'https://rubygems.org'.freeze
     BUILD_TO_DIRNAME   = 'pkg'.freeze
 
-    attr_reader :path, :name, :version
+    attr_reader :path, :name, :version, :version_tag
     attr_reader :gem_file_name, :gem_file, :push_host
 
     def initialize(root_path)
@@ -18,9 +18,10 @@ module GGem
       @path = Pathname.new(Dir[File.join(@root, "{,*}.gemspec")].first.to_s)
       raise NotFoundError unless @path.exist?
 
-      @spec    = load_gemspec(@path)
-      @name    = @spec.name
-      @version = @spec.version
+      @spec        = load_gemspec(@path)
+      @name        = @spec.name
+      @version     = @spec.version
+      @version_tag = "v#{@version}"
 
       @gem_file_name  = "#{@name}-#{@version}.gem"
       @gem_file       = File.join(BUILD_TO_DIRNAME, @gem_file_name)

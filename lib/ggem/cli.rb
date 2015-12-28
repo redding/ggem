@@ -11,12 +11,14 @@ module GGem
     class BuildCommand;    end
     class InstallCommand;  end
     class PushCommand;     end
+    class TagCommand;      end
     COMMANDS = Hash.new{ |h, k| InvalidCommand.new(k) }.tap do |h|
       h['generate'] = GenerateCommand
       h['g']        = GenerateCommand
       h['build']    = BuildCommand
       h['install']  = InstallCommand
       h['push']     = PushCommand
+      h['tag']      = TagCommand
     end
 
     def self.run(args)
@@ -121,7 +123,7 @@ module GGem
 
     end
 
-    module ExecuteCommand
+    module NotifyCmdCommand
       include MuchPlugin
 
       plugin_included do
@@ -132,13 +134,17 @@ module GGem
 
         private
 
-        def execute(success_msg, &cmd_block)
+        def notify(success_msg, &cmd_block)
+          cmd(&cmd_block)
+          @stdout.puts success_msg
+        end
+
+        def cmd(&cmd_block)
           cmd, status, output = cmd_block.call
           if ENV['DEBUG']
             @stdout.puts cmd
             @stdout.puts output
           end
-          @stdout.puts success_msg
         end
 
       end
@@ -150,7 +156,7 @@ module GGem
 
       plugin_included do
         include ValidCommand
-        include ExecuteCommand
+        include NotifyCmdCommand
         include InstanceMethods
       end
 
@@ -164,7 +170,7 @@ module GGem
 
         private
 
-        def execute(*args, &block)
+        def notify(*args, &block)
           begin
             super
           rescue GGem::GitRepo::CmdError => exception
@@ -192,9 +198,7 @@ module GGem
         end
 
         @repo = GGem::GitRepo.new(path)
-        execute("initialized gem git repo") do
-          @repo.run_init_cmd
-        end
+        notify("initialized gem git repo"){ @repo.run_init_cmd }
       end
 
       def help
@@ -209,7 +213,7 @@ module GGem
 
       plugin_included do
         include ValidCommand
-        include ExecuteCommand
+        include NotifyCmdCommand
         include InstanceMethods
       end
 
@@ -228,13 +232,13 @@ module GGem
 
         private
 
-        def execute_build
-          execute("#{@spec.name} #{@spec.version} built to #{@spec.gem_file}") do
+        def notify_build
+          notify("#{@spec.name} #{@spec.version} built to #{@spec.gem_file}") do
             @spec.run_build_cmd
           end
         end
 
-        def execute(*args, &block)
+        def notify(*args, &block)
           begin
             super
           rescue GGem::Gemspec::CmdError => exception
@@ -251,7 +255,7 @@ module GGem
 
       def run
         super
-        execute_build
+        notify_build
       end
 
       def help
@@ -269,8 +273,8 @@ module GGem
 
       def run
         super
-        execute_build
-        execute("#{@spec.name} #{@spec.version} installed to system gems") do
+        notify_build
+        notify("#{@spec.name} #{@spec.version} installed to system gems") do
           @spec.run_install_cmd
         end
       end
@@ -289,8 +293,8 @@ module GGem
 
       def run
         super
-        execute_build
-        execute("#{@spec.name} #{@spec.version} pushed to #{@spec.push_host}") do
+        notify_build
+        notify("#{@spec.name} #{@spec.version} pushed to #{@spec.push_host}") do
           @spec.run_push_cmd
         end
       end
@@ -300,6 +304,47 @@ module GGem
         "Options: #{@clirb}\n" \
         "Description:\n" \
         "  Push built #{@spec.gem_file_name} to #{@spec.push_host}"
+      end
+
+    end
+
+    class TagCommand
+      include GitRepoCommand
+      include GemspecCommand
+
+      def run
+        super
+
+        begin
+          cmd{ @repo.run_validate_clean_cmd }
+          cmd{ @repo.run_validate_committed_cmd }
+        rescue GGem::GitRepo::CmdError => err
+          @stderr.puts "There are files that need to be committed first."
+          raise CommandExitError
+        end
+
+        cmd{ @repo.run_add_version_tag_cmd(@spec.version, @spec.version_tag) }
+
+        @stdout.puts "Tagged #{@spec.version_tag}."
+
+        begin
+          cmd{ @repo.run_push_cmd }
+        rescue
+          cmd{ @repo.run_rm_tag_cmd(@spec.version_tag) }
+          raise
+        end
+
+        @stdout.puts "Pushed git commits and tags."
+      rescue GGem::GitRepo::CmdError => err
+        @stderr.puts err.message
+        raise CommandExitError
+      end
+
+      def help
+        "Usage: ggem tag [options]\n\n" \
+        "Options: #{@clirb}\n" \
+        "Description:\n" \
+        "  Tag #{@spec.version_tag}; push git commits and tags"
       end
 
     end

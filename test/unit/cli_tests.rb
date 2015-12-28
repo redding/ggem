@@ -4,6 +4,7 @@ require 'ggem/cli'
 require 'ggem/gem'
 require 'ggem/gemspec'
 require 'ggem/git_repo'
+require 'much-plugin'
 
 class GGem::CLI
 
@@ -30,7 +31,7 @@ class GGem::CLI
     end
 
     should "know its commands" do
-      assert_equal 5, COMMANDS.size
+      assert_equal 6, COMMANDS.size
 
       assert_instance_of InvalidCommand, COMMANDS[Factory.string]
 
@@ -39,6 +40,7 @@ class GGem::CLI
       assert_equal BuildCommand,    COMMANDS['build']
       assert_equal InstallCommand,  COMMANDS['install']
       assert_equal PushCommand,     COMMANDS['push']
+      assert_equal TagCommand,      COMMANDS['tag']
     end
 
   end
@@ -283,9 +285,9 @@ class GGem::CLI
       @cmd  = @command_class.new(@args, @stdout, @stderr)
     end
 
-    should "be a valid, execute command" do
-      assert_kind_of ValidCommand,   subject
-      assert_kind_of ExecuteCommand, subject
+    should "be a valid, notify cmd command" do
+      assert_kind_of ValidCommand,     subject
+      assert_kind_of NotifyCmdCommand, subject
     end
 
     should "build a new git repo at the current pwd root" do
@@ -298,18 +300,36 @@ class GGem::CLI
 
   end
 
-  class GitRepoSpyTests < IOCommandTests
-    setup do
-      @root_path = Factory.path
-      Assert.stub(Dir, :pwd){ @root_path }
+  module RootPathTests
+    include MuchPlugin
 
-      @repo_spy = nil
-      Assert.stub(GGem::GitRepo, :new){ |*args| @repo_spy = GitRepoSpy.new(*args) }
+    plugin_included do
+      setup do
+        @root_path = Factory.path
+        Assert.stub(Dir, :pwd){ @root_path }
+      end
     end
 
   end
 
-  class GenerateCommandTests < GitRepoSpyTests
+  module GitRepoSpyTests
+    include MuchPlugin
+
+    plugin_included do
+      include RootPathTests
+
+      setup do
+        @repo_spy = nil
+        Assert.stub(GGem::GitRepo, :new){ |*args| @repo_spy = GitRepoSpy.new(*args) }
+      end
+
+    end
+
+  end
+
+  class GenerateCommandTests < IOCommandTests
+    include GitRepoSpyTests
+
     desc "GenerateCommand"
     setup do
       @name = Factory.string
@@ -381,9 +401,9 @@ class GGem::CLI
       @cmd  = @command_class.new(@args, @stdout, @stderr)
     end
 
-    should "be a valid, execute command" do
-      assert_kind_of ValidCommand,   subject
-      assert_kind_of ExecuteCommand, subject
+    should "be a valid, notify cmd command" do
+      assert_kind_of ValidCommand,     subject
+      assert_kind_of NotifyCmdCommand, subject
     end
 
     should "build a new gemspec at the current pwd root" do
@@ -407,18 +427,23 @@ class GGem::CLI
 
   end
 
-  class GemspecSpyTests < IOCommandTests
-    setup do
-      @root_path = Factory.path
-      Assert.stub(Dir, :pwd){ @root_path }
+  module GemspecSpyTests
+    include MuchPlugin
 
-      @spec_spy = nil
-      Assert.stub(GGem::Gemspec, :new){ |*args| @spec_spy = GemspecSpy.new(*args) }
+    plugin_included do
+      include RootPathTests
+
+      setup do
+        @spec_spy = nil
+        Assert.stub(GGem::Gemspec, :new){ |*args| @spec_spy = GemspecSpy.new(*args) }
+      end
     end
 
   end
 
-  class BuildCommandTests < GemspecSpyTests
+  class BuildCommandTests < IOCommandTests
+    include GemspecSpyTests
+
     desc "BuildCommand"
     setup do
       @command_class = BuildCommand
@@ -461,7 +486,9 @@ class GGem::CLI
 
   end
 
-  class InstallCommandTests < GemspecSpyTests
+  class InstallCommandTests < IOCommandTests
+    include GemspecSpyTests
+
     desc "InstallCommand"
     setup do
       @command_class = InstallCommand
@@ -504,7 +531,9 @@ class GGem::CLI
 
   end
 
-  class PushCommandTests < GemspecSpyTests
+  class PushCommandTests < IOCommandTests
+    include GemspecSpyTests
+
     desc "PushCommand"
     setup do
       @command_class = PushCommand
@@ -540,6 +569,97 @@ class GGem::CLI
     should "handle cmd errors when run" do
       err_msg = Factory.string
       Assert.stub(@spec_spy, :run_push_cmd){ raise GGem::Gemspec::CmdError, err_msg }
+
+      assert_raises(CommandExitError){ subject.run }
+      assert_equal "#{err_msg}\n", @stderr.read
+    end
+
+  end
+
+  class TagCommandTests < IOCommandTests
+    include GitRepoSpyTests
+    include GemspecSpyTests
+
+    desc "TagCommand"
+    setup do
+      @command_class = TagCommand
+      @cmd = @command_class.new([], @stdout, @stderr)
+    end
+
+    should "be a gemspec command" do
+      assert_kind_of GemspecCommand, subject
+    end
+
+    should "know its help" do
+      exp = "Usage: ggem tag [options]\n\n" \
+            "Options: #{subject.clirb}\n" \
+            "Description:\n" \
+            "  Tag #{@spec_spy.version_tag}; push git commits and tags"
+      assert_equal exp, subject.help
+    end
+
+    should "call the repo's run build/push cmds when run" do
+      ENV['DEBUG'] = [nil, '1'].choice
+      subject.run
+
+      assert_true @repo_spy.run_validate_clean_cmd_called
+      assert_true @repo_spy.run_validate_committed_cmd_called
+
+      exp = [@spec_spy.version, @spec_spy.version_tag]
+      assert_equal exp, @repo_spy.run_add_version_tag_cmd_called_with
+
+      assert_true @repo_spy.run_push_cmd_called
+      assert_nil @repo_spy.run_rm_tag_cmd_called_with
+
+      exp = if ENV['DEBUG'] == '1'
+        "validate clean\nvalidate clean cmd was run\n" \
+        "validate committed\nvalidate committed cmd was run\n" \
+        "add tag\nadd tag cmd was run\n"
+      else
+        ''
+      end
+      exp += "Tagged #{@spec_spy.version_tag}.\n"
+      exp += ENV['DEBUG'] == '1' ? "push\npush cmd was run\n" : ''
+      exp += "Pushed git commits and tags.\n"
+      assert_equal exp, @stdout.read
+
+      ENV['DEBUG'] = nil
+    end
+
+    should "handle validation cmd errors when run" do
+      err_msg = Factory.string
+      err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].choice
+      Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
+
+      assert_raises(CommandExitError){ subject.run }
+      exp = "There are files that need to be committed first.\n"
+      assert_equal exp, @stderr.read
+    end
+
+    should "handle non-validation cmd errors when run" do
+      err_msg = Factory.string
+      err_on = [:run_add_version_tag_cmd, :run_push_cmd].choice
+      Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
+
+      assert_raises(CommandExitError){ subject.run }
+      assert_equal "#{err_msg}\n", @stderr.read
+    end
+
+    should "remove the version tag on push errors" do
+      err_msg = Factory.string
+      Assert.stub(@repo_spy, :run_push_cmd){ raise GGem::GitRepo::CmdError, err_msg }
+
+      assert_raises(CommandExitError){ subject.run }
+      assert_equal "#{err_msg}\n", @stderr.read
+
+      exp = [@spec_spy.version_tag]
+      assert_equal exp, @repo_spy.run_rm_tag_cmd_called_with
+    end
+
+    should "handle tag removal cmd errors when run" do
+      Assert.stub(@repo_spy, :run_push_cmd){ raise GGem::GitRepo::CmdError, Factory.string }
+      err_msg = Factory.string
+      Assert.stub(@repo_spy, :run_rm_tag_cmd){ raise GGem::GitRepo::CmdError, err_msg }
 
       assert_raises(CommandExitError){ subject.run }
       assert_equal "#{err_msg}\n", @stderr.read
@@ -620,14 +740,15 @@ class GGem::CLI
   end
 
   class GemspecSpy
-    attr_reader :name, :version, :push_host
+    attr_reader :name, :version, :version_tag, :push_host
     attr_reader :run_build_cmd_called, :run_install_cmd_called, :run_push_cmd_called
 
     def initialize(root_path)
-      @root      = Pathname.new(File.expand_path(root_path))
-      @name      = Factory.string
-      @version   = Factory.string
-      @push_host = Factory.url
+      @root        = Pathname.new(File.expand_path(root_path))
+      @name        = Factory.string
+      @version     = Factory.string
+      @version_tag = Factory.string
+      @push_host   = Factory.url
 
       @run_build_cmd_called   = false
       @run_install_cmd_called = false
@@ -666,16 +787,52 @@ class GGem::CLI
   class GitRepoSpy
     attr_reader :path
     attr_reader :run_init_cmd_called
+    attr_reader :run_validate_clean_cmd_called, :run_validate_committed_cmd_called
+    attr_reader :run_add_version_tag_cmd_called_with, :run_rm_tag_cmd_called_with
+    attr_reader :run_push_cmd_called
 
     def initialize(path)
       @path = path
 
       @run_init_cmd_called = false
+
+      @run_validate_clean_cmd_called     = false
+      @run_validate_committed_cmd_called = false
+
+      @run_add_version_tag_cmd_called_with = nil
+      @run_rm_tag_cmd_called_with          = nil
+
+      @run_push_cmd_called = false
     end
 
     def run_init_cmd
       @run_init_cmd_called = true
       ['init', 0, 'init cmd was run']
+    end
+
+    def run_validate_clean_cmd
+      @run_validate_clean_cmd_called = true
+      ['validate clean', 0, 'validate clean cmd was run']
+    end
+
+    def run_validate_committed_cmd
+      @run_validate_committed_cmd_called = true
+      ['validate committed', 0, 'validate committed cmd was run']
+    end
+
+    def run_add_version_tag_cmd(*args)
+      @run_add_version_tag_cmd_called_with = args
+      ['add tag', 0, 'add tag cmd was run']
+    end
+
+    def run_rm_tag_cmd(*args)
+      @run_rm_tag_cmd_called_with = args
+      ['rm tag', 0, 'rm tag cmd was run']
+    end
+
+    def run_push_cmd
+      @run_push_cmd_called = true
+      ['push', 0, 'push cmd was run']
     end
 
   end
