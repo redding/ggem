@@ -2,41 +2,71 @@ require 'assert'
 require 'ggem'
 
 require 'test/support/name_set'
-require 'test/support/system_tests_helpers'
 
 module GGem
 
   class SystemTests < Assert::Context
-    extend SystemTestsHelpers
-
-    desc "GGem"
 
     NS_SIMPLE = GGem::NameSet::Simple
     NS_UNDER  = GGem::NameSet::Underscored
     NS_HYPHEN = GGem::NameSet::HyphenatedOther
 
-    [NS_SIMPLE, NS_UNDER, NS_HYPHEN].each do |ns|
-      should generate_name_set(ns.new)
+    desc "GGem"
+
+  end
+
+  class GemTests < SystemTests
+    desc "Gem"
+
+    should "know its name attrs for various name styles (simple/underscored/hyphenated)" do
+      [NS_SIMPLE, NS_UNDER, NS_HYPHEN].each do |ns|
+        assert_gem_name_set(ns.new)
+      end
+    end
+
+    private
+
+    def assert_gem_name_set(name_set)
+      name_set.variations.each do |variation|
+        the_gem = GGem::Gem.new(TMP_PATH, variation)
+        [:name, :module_name, :ruby_name].each do |name_type|
+          assert_equal name_set.send(name_type), the_gem.send(name_type)
+        end
+      end
     end
 
   end
 
-  class SaveTests < SystemTests
-    desc "when saving new gems"
-    setup_once do
+  class GemSaveTests < GemTests
+    setup do
       FileUtils.rm_rf(TMP_PATH)
       FileUtils.mkdir_p(TMP_PATH)
-      GGem::Gem.new(TMP_PATH, NS_SIMPLE.new.variations.first).save!
-      GGem::Gem.new(TMP_PATH, NS_UNDER.new.variations.first).save!
-      GGem::Gem.new(TMP_PATH, NS_HYPHEN.new.variations.first).save!
     end
-    teardown_once do
+    teardown do
       FileUtils.rm_rf(TMP_PATH)
     end
 
-    should create_paths(NS_SIMPLE.new)
-    should create_paths(NS_UNDER.new)
-    should create_paths(NS_HYPHEN.new)
+    should "save gems with various name styles (simple/underscored/hyphenated)" do
+      [NS_SIMPLE, NS_UNDER, NS_HYPHEN].each do |ns|
+        init_gem = GGem::Gem.new(TMP_PATH, ns.new.variations.first)
+        gem_from_save = init_gem.save!
+
+        assert_gem_created(ns.new)
+        assert_same init_gem, gem_from_save
+      end
+    end
+
+    private
+
+    def assert_gem_created(name_set)
+      folders = name_set.expected_folders
+      files   = name_set.expected_files
+      paths   = (folders + files).collect{ |p| File.join(TMP_PATH, name_set.name, p) }
+
+      paths.flatten.each do |path|
+        assert File.exists?(path), "'#{path}' does not exist"
+      end
+    end
 
   end
 
