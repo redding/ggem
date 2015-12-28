@@ -14,6 +14,7 @@ module GGem
 
     def save!
       Template.new(self).save
+      self
     end
 
     def path; File.join(@root_path, @name); end
