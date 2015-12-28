@@ -492,8 +492,12 @@ class GGem::CLI
 
     desc "InstallCommand"
     setup do
+      @build_spy = nil
+      Assert.stub(BuildCommand, :new){ |*args| @build_spy = CommandSpy.new(*args) }
+
       @command_class = InstallCommand
-      @cmd = @command_class.new([], @stdout, @stderr)
+      @argv = []
+      @cmd = @command_class.new(@argv, @stdout, @stderr)
     end
 
     should "be a gemspec command" do
@@ -508,11 +512,16 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "call the spec's run build/install cmds when run" do
+    should "build a build command using its argv" do
+      assert @build_spy
+      assert_equal @argv, @build_spy.argv
+    end
+
+    should "run the build command and call the spec's run install cmds when run" do
       ENV['DEBUG'] = [nil, '1'].choice
       subject.run
 
-      assert_true @spec_spy.run_build_cmd_called
+      assert_true @build_spy.run_called
       assert_true @spec_spy.run_install_cmd_called
 
       exp = ENV['DEBUG'] == '1' ? "install\ninstall cmd was run\n" : ''
@@ -537,8 +546,12 @@ class GGem::CLI
 
     desc "PushCommand"
     setup do
+      @build_spy = nil
+      Assert.stub(BuildCommand, :new){ |*args| @build_spy = CommandSpy.new(*args) }
+
       @command_class = PushCommand
-      @cmd = @command_class.new([], @stdout, @stderr)
+      @argv = []
+      @cmd = @command_class.new(@argv, @stdout, @stderr)
     end
 
     should "be a gemspec command" do
@@ -553,16 +566,22 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "call the spec's run build/push cmds when run" do
+    should "build a build command using its argv" do
+      assert @build_spy
+      assert_equal @argv, @build_spy.argv
+    end
+
+    should "run the build command and call the spec's run push cmds when run" do
       ENV['DEBUG'] = [nil, '1'].choice
       subject.run
 
-      assert_true @spec_spy.run_build_cmd_called
+      assert_true @build_spy.run_called
       assert_true @spec_spy.run_push_cmd_called
 
-      exp = ENV['DEBUG'] == '1' ? "push\npush cmd was run\n" : ''
-      exp += "#{@spec_spy.name} #{@spec_spy.version} pushed to #{@spec_spy.push_host}\n"
-      assert_includes exp, @stdout.read
+      exp = "Pushing #{@spec_spy.gem_file_name} to #{@spec_spy.push_host}...\n"
+      exp += ENV['DEBUG'] == '1' ? "push\npush cmd was run\n" : ''
+      exp += "#{@spec_spy.gem_file_name} received.\n"
+      assert_equal exp, @stdout.read
 
       ENV['DEBUG'] = nil
     end
@@ -595,7 +614,7 @@ class GGem::CLI
       exp = "Usage: ggem tag [options]\n\n" \
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
-            "  Tag #{@spec_spy.version_tag}; push git commits and tags"
+            "  Tag #{@spec_spy.version_tag} and push git commits/tags"
       assert_equal exp, subject.help
     end
 
@@ -693,7 +712,8 @@ class GGem::CLI
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
             "  Tag #{@spec_spy.version_tag} and push built #{@spec_spy.gem_file_name} to " \
-               "#{@spec_spy.push_host} (equivalent to `ggem tag && ggem push`)"
+               "#{@spec_spy.push_host}\n" \
+            "  (macro for running `ggem tag && ggem push`)"
       assert_equal exp, subject.help
     end
 
@@ -704,7 +724,7 @@ class GGem::CLI
       end
     end
 
-    should "call the tag/push command's run when run" do
+    should "run the tag and push command when run" do
       subject.run
 
       [@tag_spy, @push_spy].each do |spy|

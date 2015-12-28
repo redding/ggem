@@ -235,12 +235,6 @@ module GGem
 
         private
 
-        def notify_build
-          notify("#{@spec.name} #{@spec.version} built to #{@spec.gem_file}") do
-            @spec.run_build_cmd
-          end
-        end
-
         def notify(*args, &block)
           begin
             super
@@ -258,7 +252,9 @@ module GGem
 
       def run
         super
-        notify_build
+        notify("#{@spec.name} #{@spec.version} built to #{@spec.gem_file}") do
+          @spec.run_build_cmd
+        end
       end
 
       def help
@@ -274,9 +270,14 @@ module GGem
     class InstallCommand
       include GemspecCommand
 
+      def initialize(*args)
+        super
+        @build_command = BuildCommand.new(*args)
+      end
+
       def run
         super
-        notify_build
+        @build_command.run
         notify("#{@spec.name} #{@spec.version} installed to system gems") do
           @spec.run_install_cmd
         end
@@ -294,9 +295,14 @@ module GGem
     class PushCommand
       include GemspecCommand
 
+      def initialize(*args)
+        super
+        @build_command = BuildCommand.new(*args)
+      end
+
       def run
         super
-        notify_build
+        @build_command.run
 
         @stdout.puts "Pushing #{@spec.gem_file_name} to #{@spec.push_host}..."
         notify("#{@spec.gem_file_name} received.") do
