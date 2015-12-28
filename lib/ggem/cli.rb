@@ -1,5 +1,6 @@
 require 'ggem/version'
 require 'ggem/clirb'
+require 'much-plugin'
 
 module GGem
 
@@ -94,36 +95,105 @@ module GGem
     end
 
     module ValidCommand
+      include MuchPlugin
 
-      def initialize(argv, stdout = nil, stderr = nil)
-        @argv   = argv
-        @stdout = stdout || $stdout
-        @stderr = stderr || $stderr
-
-        @clirb = GGem::CLIRB.new
+      plugin_included do
+        include InstanceMethods
       end
 
-      def clirb; @clirb; end
+      module InstanceMethods
 
-      def run
-        @clirb.parse!(@argv)
+        def initialize(argv, stdout = nil, stderr = nil)
+          @argv   = argv
+          @stdout = stdout || $stdout
+          @stderr = stderr || $stderr
+
+          @clirb = GGem::CLIRB.new
+        end
+
+        def clirb; @clirb; end
+
+        def run
+          @clirb.parse!(@argv)
+        end
+
       end
 
     end
 
+    module ExecuteCommand
+      include MuchPlugin
+
+      plugin_included do
+        include InstanceMethods
+      end
+
+      module InstanceMethods
+
+        private
+
+        def execute(success_msg, &cmd_block)
+          cmd, status, output = cmd_block.call
+          if ENV['DEBUG']
+            @stdout.puts cmd
+            @stdout.puts output
+          end
+          @stdout.puts success_msg
+        end
+
+      end
+
+    end
+
+    module GitRepoCommand
+      include MuchPlugin
+
+      plugin_included do
+        include ValidCommand
+        include ExecuteCommand
+        include InstanceMethods
+      end
+
+      module InstanceMethods
+        def initialize(*args)
+          super
+
+          require 'ggem/git_repo'
+          @repo = GGem::GitRepo.new(Dir.pwd)
+        end
+
+        private
+
+        def execute(*args, &block)
+          begin
+            super
+          rescue GGem::GitRepo::CmdError => exception
+            @stderr.puts exception.message
+            raise CommandExitError
+          end
+        end
+
+      end
+    end
+
     class GenerateCommand
-      include ValidCommand
+      include GitRepoCommand
 
       def run
         super
         begin
           require 'ggem/gem'
           path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
-          @stdout.puts "created gem and initialized git repo in #{path}"
+          @stdout.puts "created gem in #{path}"
         rescue GGem::Gem::NoNameError => exception
           error = ArgumentError.new("GEM-NAME must be provided")
           error.set_backtrace(exception.backtrace)
           raise error
+        end
+
+        @repo = GGem::GitRepo.new(path)
+        execute("initialized gem git repo") do
+          @repo.run_init_cmd
         end
       end
 
@@ -134,24 +204,13 @@ module GGem
 
     end
 
-    module ExecuteCommand
-      private
-
-      def execute(success_msg, &cmd_block)
-        cmd, status, output = cmd_block.call
-        if ENV['DEBUG']
-          @stdout.puts cmd
-          @stdout.puts output
-        end
-        @stdout.puts success_msg
-      end
-    end
-
     module GemspecCommand
-      def self.included(receiver)
-        receiver.send(:include, ValidCommand)
-        receiver.send(:include, ExecuteCommand)
-        receiver.send(:include, InstanceMethods)
+      include MuchPlugin
+
+      plugin_included do
+        include ValidCommand
+        include ExecuteCommand
+        include InstanceMethods
       end
 
       module InstanceMethods

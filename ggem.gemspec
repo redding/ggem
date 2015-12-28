@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency("assert", ["~> 2.15.0"])
 
-  gem.add_dependency("scmd", ["~> 3.0.1"])
+  gem.add_dependency("much-plugin", ["~> 0.1.0"])
+  gem.add_dependency("scmd",        ["~> 3.0.1"])
 
 end

@@ -3,6 +3,7 @@ require 'ggem/cli'
 
 require 'ggem/gem'
 require 'ggem/gemspec'
+require 'ggem/git_repo'
 
 class GGem::CLI
 
@@ -271,7 +272,44 @@ class GGem::CLI
 
   end
 
-  class GenerateCommandTests < IOCommandTests
+  class GitRepoCommandTests < IOCommandTests
+    desc "GitRepoCommand"
+    setup do
+      @gem1_root_path = TEST_SUPPORT_PATH.join('gem1')
+      Assert.stub(Dir, :pwd){ @gem1_root_path}
+
+      @command_class = Class.new{ include GitRepoCommand }
+      @args = Factory.integer(3).times.map{ Factory.string }
+      @cmd  = @command_class.new(@args, @stdout, @stderr)
+    end
+
+    should "be a valid, execute command" do
+      assert_kind_of ValidCommand,   subject
+      assert_kind_of ExecuteCommand, subject
+    end
+
+    should "build a new git repo at the current pwd root" do
+      gitrepo_new_called_with = nil
+      Assert.stub(GGem::GitRepo, :new){ |*args| gitrepo_new_called_with = args }
+
+      @command_class.new(@args, @stdout, @stderr)
+      assert_equal [Dir.pwd], gitrepo_new_called_with
+    end
+
+  end
+
+  class GitRepoSpyTests < IOCommandTests
+    setup do
+      @root_path = Factory.path
+      Assert.stub(Dir, :pwd){ @root_path }
+
+      @repo_spy = nil
+      Assert.stub(GGem::GitRepo, :new){ |*args| @repo_spy = GitRepoSpy.new(*args) }
+    end
+
+  end
+
+  class GenerateCommandTests < GitRepoSpyTests
     desc "GenerateCommand"
     setup do
       @name = Factory.string
@@ -287,9 +325,8 @@ class GGem::CLI
         @gem_spy
       end
 
-      @stdout = IOSpy.new
       @command_class = GenerateCommand
-      @cmd = @command_class.new([@name], @stdout)
+      @cmd = @command_class.new([@name], @stdout, @stderr)
     end
 
     should "be a valid command" do
@@ -302,13 +339,17 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "save a gem when run" do
+    should "save a gem and initialize a git repo for it when run" do
       subject.run
 
       assert_equal [@path, @name], @gem_new_called_with
       assert_true @gem_spy.save_called
 
-      exp = "created gem and initialized git repo in #{@gem_spy.path}\n"
+      assert_equal @gem_spy.path, @repo_spy.path
+      assert_true @repo_spy.run_init_cmd_called
+
+      exp = "created gem in #{@gem_spy.path}\n" \
+            "initialized gem git repo\n"
       assert_equal exp, @stdout.read
     end
 
@@ -618,6 +659,23 @@ class GGem::CLI
     def run_push_cmd
       @run_push_cmd_called = true
       ['push', 0, 'push cmd was run']
+    end
+
+  end
+
+  class GitRepoSpy
+    attr_reader :path
+    attr_reader :run_init_cmd_called
+
+    def initialize(path)
+      @path = path
+
+      @run_init_cmd_called = false
+    end
+
+    def run_init_cmd
+      @run_init_cmd_called = true
+      ['init', 0, 'init cmd was run']
     end
 
   end

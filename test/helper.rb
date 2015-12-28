@@ -12,5 +12,3 @@ TEST_SUPPORT_PATH = ROOT_PATH.join('test/support')
 require 'pry'
 
 require 'test/support/factory'
-
-ENV['SCMD_TEST_MODE'] = '1'

@@ -35,13 +35,6 @@ module GGem
       save_empty_file('tmp/.gitkeep')
     end
 
-    def init
-      cmd = "cd #{@gem.path} &&"\
-            " git init && git add --all &&"\
-            " git add -f log/.gitkeep && git add -f tmp/.gitkeep"
-      `#{cmd}`
-    end
-
     private
 
     def save_folder(relative_path=nil)
