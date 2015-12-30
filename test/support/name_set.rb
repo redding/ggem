@@ -21,7 +21,6 @@ module GGem
         [ ".gitignore",
           "Gemfile",
           "#{@name}.gemspec",
-          "Rakefile",
           "README.md",
           "LICENSE",
 
