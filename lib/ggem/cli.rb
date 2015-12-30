@@ -17,10 +17,15 @@ module GGem
       h['generate'] = GenerateCommand
       h['g']        = GenerateCommand
       h['build']    = BuildCommand
+      h['b']        = BuildCommand
       h['install']  = InstallCommand
+      h['i']        = InstallCommand
       h['push']     = PushCommand
+      h['p']        = PushCommand
       h['tag']      = TagCommand
+      h['t']        = TagCommand
       h['release']  = ReleaseCommand
+      h['r']        = ReleaseCommand
     end
 
     def self.run(args)

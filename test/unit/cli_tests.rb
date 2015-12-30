@@ -31,17 +31,22 @@ class GGem::CLI
     end
 
     should "know its commands" do
-      assert_equal 7, COMMANDS.size
+      assert_equal 12, COMMANDS.size
 
       assert_instance_of InvalidCommand, COMMANDS[Factory.string]
 
       assert_equal GenerateCommand, COMMANDS['generate']
       assert_equal GenerateCommand, COMMANDS['g']
       assert_equal BuildCommand,    COMMANDS['build']
+      assert_equal BuildCommand,    COMMANDS['b']
       assert_equal InstallCommand,  COMMANDS['install']
+      assert_equal InstallCommand,  COMMANDS['i']
       assert_equal PushCommand,     COMMANDS['push']
+      assert_equal PushCommand,     COMMANDS['p']
       assert_equal TagCommand,      COMMANDS['tag']
+      assert_equal TagCommand,      COMMANDS['t']
       assert_equal ReleaseCommand,  COMMANDS['release']
+      assert_equal ReleaseCommand,  COMMANDS['r']
     end
 
   end
