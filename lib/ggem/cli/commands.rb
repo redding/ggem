@@ -9,22 +9,20 @@ class GGem::CLI
 
   class InvalidCommand
 
-    attr_reader :name, :argv, :clirb
+    attr_reader :name, :clirb
 
     def initialize(name)
       @name  = name
-      @argv  = []
       @clirb = CLIRB.new
     end
 
-    def new(args)
-      @argv = [@name, args].flatten.compact
+    def new(*args)
       self
     end
 
-    def run
-      @clirb.parse!(@argv)
-      raise CLIRB::HelpExit if @clirb.args.empty? || @name.to_s.empty?
+    def run(argv)
+      @clirb.parse!([@name, argv].flatten.compact)
+      raise CLIRB::HelpExit if @name.to_s.empty?
       raise InvalidCommandError, "'#{self.name}' is not a command."
     end
 
@@ -45,18 +43,16 @@ class GGem::CLI
 
     module InstanceMethods
 
-      def initialize(argv, stdout = nil, stderr = nil)
-        @argv   = argv
+      def initialize(stdout = nil, stderr = nil)
         @stdout = stdout || $stdout
         @stderr = stderr || $stderr
-
-        @clirb = CLIRB.new
+        @clirb  = CLIRB.new
       end
 
       def clirb; @clirb; end
 
-      def run
-        @clirb.parse!(@argv)
+      def run(argv)
+        @clirb.parse!(argv)
       end
 
     end
@@ -125,7 +121,7 @@ class GGem::CLI
   class GenerateCommand
     include GitRepoCommand
 
-    def run
+    def run(argv)
       super
 
       begin
@@ -188,7 +184,7 @@ class GGem::CLI
   class BuildCommand
     include GemspecCommand
 
-    def run
+    def run(argv)
       super
       notify("#{@spec.name} #{@spec.version} built to #{@spec.gem_file}") do
         @spec.run_build_cmd
@@ -213,9 +209,9 @@ class GGem::CLI
       @build_command = BuildCommand.new(*args)
     end
 
-    def run
+    def run(argv)
       super
-      @build_command.run
+      @build_command.run(argv)
       notify("#{@spec.name} #{@spec.version} installed to system gems") do
         @spec.run_install_cmd
       end
@@ -238,9 +234,9 @@ class GGem::CLI
       @build_command = BuildCommand.new(*args)
     end
 
-    def run
+    def run(argv)
       super
-      @build_command.run
+      @build_command.run(argv)
 
       @stdout.puts "Pushing #{@spec.gem_file_name} to #{@spec.push_host}..."
       notify("#{@spec.gem_file_name} received.") do
@@ -261,7 +257,7 @@ class GGem::CLI
     include GitRepoCommand
     include GemspecCommand
 
-    def run
+    def run(argv)
       super
 
       begin
@@ -303,15 +299,14 @@ class GGem::CLI
 
     def initialize(*args)
       super
-
       @tag_command  = TagCommand.new(*args)
       @push_command = PushCommand.new(*args)
     end
 
-    def run
+    def run(argv)
       super
-      @tag_command.run
-      @push_command.run
+      @tag_command.run(argv)
+      @push_command.run(argv)
     end
 
     def help
