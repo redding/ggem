@@ -34,8 +34,8 @@ module GGem
     def run(args)
       begin
         cmd_name = args.shift
-        cmd = COMMANDS[cmd_name].new(args)
-        cmd.run
+        cmd = COMMANDS[cmd_name].new
+        cmd.run(args)
       rescue CLIRB::HelpExit
         @stdout.puts cmd.help
       rescue CLIRB::VersionExit
