@@ -29,22 +29,23 @@ class GGem::CLI
     end
 
     should "know its commands" do
-      assert_equal 12, COMMANDS.size
+      assert_equal 6, COMMANDS.size
 
       assert_instance_of InvalidCommand, COMMANDS[Factory.string]
 
-      assert_equal GenerateCommand, COMMANDS['generate']
-      assert_equal GenerateCommand, COMMANDS['g']
-      assert_equal BuildCommand,    COMMANDS['build']
-      assert_equal BuildCommand,    COMMANDS['b']
-      assert_equal InstallCommand,  COMMANDS['install']
-      assert_equal InstallCommand,  COMMANDS['i']
-      assert_equal PushCommand,     COMMANDS['push']
-      assert_equal PushCommand,     COMMANDS['p']
-      assert_equal TagCommand,      COMMANDS['tag']
-      assert_equal TagCommand,      COMMANDS['t']
-      assert_equal ReleaseCommand,  COMMANDS['release']
-      assert_equal ReleaseCommand,  COMMANDS['r']
+      assert_instance_of GenerateCommand, COMMANDS['generate']
+      assert_instance_of BuildCommand,    COMMANDS['build']
+      assert_instance_of InstallCommand,  COMMANDS['install']
+      assert_instance_of PushCommand,     COMMANDS['push']
+      assert_instance_of TagCommand,      COMMANDS['tag']
+      assert_instance_of ReleaseCommand,  COMMANDS['release']
+
+      assert_same COMMANDS['generate'], COMMANDS['g']
+      assert_same COMMANDS['build'],    COMMANDS['b']
+      assert_same COMMANDS['install'],  COMMANDS['i']
+      assert_same COMMANDS['push'],     COMMANDS['p']
+      assert_same COMMANDS['tag'],      COMMANDS['t']
+      assert_same COMMANDS['release'],  COMMANDS['r']
     end
 
   end
@@ -70,14 +71,14 @@ class GGem::CLI
       @argv = [@command_name, Factory.string]
 
       @command_class = Class.new
-      @command_spy  = CommandSpy.new(@argv)
+      @command_spy  = CommandSpy.new
       Assert.stub(@command_class, :new){ @command_spy }
-      COMMANDS[@command_name] = @command_class
+      COMMANDS.add(@command_class, @command_name)
 
       @invalid_command = InvalidCommand.new(@command_name)
     end
     teardown do
-      COMMANDS.delete(@command_name)
+      COMMANDS.remove(@command_name)
     end
 
   end
@@ -186,7 +187,7 @@ class GGem::CLI
   class RunWithErrorTests < RunSetupTests
     setup do
       @exception = RuntimeError.new(Factory.string)
-      Assert.stub(@command_class, :new){ raise @exception }
+      Assert.stub(@command_spy, :run){ raise @exception }
       @cli.run(@argv)
     end
 
@@ -241,8 +242,9 @@ class GGem::CLI
 
     should "know its help" do
       exp = "Usage: ggem [COMMAND] [options]\n\n" \
-            "Commands: #{COMMANDS.keys.sort.join(', ')}\n" \
-            "Options: #{subject.clirb}"
+            "Options: #{subject.clirb}\n" \
+            "Commands:\n" \
+            "#{COMMANDS.to_s.split("\n").map{ |l| "  #{l}" }.join("\n")}\n"
       assert_equal exp, subject.help
     end
 
@@ -263,7 +265,7 @@ class GGem::CLI
       @cmd = @command_class.new
     end
 
-    should have_imeths :clirb, :run
+    should have_imeths :clirb, :run, :summary
 
     should "know its CLI.RB" do
       assert_instance_of CLIRB, subject.clirb
@@ -273,6 +275,10 @@ class GGem::CLI
       argv = Factory.integer(3).times.map{ Factory.string }
       subject.run(argv, @stdout, @stderr)
       assert_equal argv, subject.clirb.args
+    end
+
+    should "default its summary" do
+      assert_equal '', subject.summary
     end
 
   end
@@ -355,9 +361,16 @@ class GGem::CLI
       assert_kind_of ValidCommand, subject
     end
 
+    should "know its summary" do
+      exp = "Create a gem given a GEM-NAME"
+      assert_equal exp, subject.summary
+    end
+
     should "know its help" do
       exp = "Usage: ggem generate [options] GEM-NAME\n\n" \
-            "Options: #{subject.clirb}"
+            "Options: #{subject.clirb}\n" \
+            "Description:\n" \
+            "  #{subject.summary}"
       assert_equal exp, subject.help
     end
 
@@ -457,12 +470,17 @@ class GGem::CLI
       assert_kind_of GemspecCommand, subject
     end
 
+    should "know its summary" do
+      exp = "Build #{@spec_spy.gem_file_name} into the " \
+            "#{GGem::Gemspec::BUILD_TO_DIRNAME} directory"
+      assert_equal exp, subject.summary
+    end
+
     should "know its help" do
       exp = "Usage: ggem build [options]\n\n" \
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
-            "  Build #{@spec_spy.gem_file_name} into the " \
-               "#{GGem::Gemspec::BUILD_TO_DIRNAME} directory"
+            "  #{subject.summary}"
       assert_equal exp, subject.help
     end
 
@@ -506,11 +524,16 @@ class GGem::CLI
       assert_kind_of GemspecCommand, subject
     end
 
+    should "know its summary" do
+      exp = "Build and install #{@spec_spy.gem_file_name} into system gems"
+      assert_equal exp, subject.summary
+    end
+
     should "know its help" do
       exp = "Usage: ggem install [options]\n\n" \
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
-            "  Build and install #{@spec_spy.gem_file_name} into system gems"
+            "  #{subject.summary}"
       assert_equal exp, subject.help
     end
 
@@ -560,11 +583,16 @@ class GGem::CLI
       assert_kind_of GemspecCommand, subject
     end
 
+    should "know its summary" do
+      exp = "Push built #{@spec_spy.gem_file_name} to #{@spec_spy.push_host}"
+      assert_equal exp, subject.summary
+    end
+
     should "know its help" do
       exp = "Usage: ggem push [options]\n\n" \
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
-            "  Push built #{@spec_spy.gem_file_name} to #{@spec_spy.push_host}"
+            "  #{subject.summary}"
       assert_equal exp, subject.help
     end
 
@@ -612,11 +640,16 @@ class GGem::CLI
       assert_kind_of GemspecCommand, subject
     end
 
+    should "know its summary" do
+      exp = "Tag #{@spec_spy.version_tag} and push git commits/tags"
+      assert_equal exp, subject.summary
+    end
+
     should "know its help" do
       exp = "Usage: ggem tag [options]\n\n" \
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
-            "  Tag #{@spec_spy.version_tag} and push git commits/tags"
+            "  #{subject.summary}"
       assert_equal exp, subject.help
     end
 
@@ -709,12 +742,17 @@ class GGem::CLI
       assert_kind_of GemspecCommand, subject
     end
 
+    should "know its summary" do
+      exp = "Tag #{@spec_spy.version_tag} and push built #{@spec_spy.gem_file_name} to " \
+               "#{@spec_spy.push_host}"
+      assert_equal exp, subject.summary
+    end
+
     should "know its help" do
       exp = "Usage: ggem release [options]\n\n" \
             "Options: #{subject.clirb}\n" \
             "Description:\n" \
-            "  Tag #{@spec_spy.version_tag} and push built #{@spec_spy.gem_file_name} to " \
-               "#{@spec_spy.push_host}\n" \
+            "  #{subject.summary}\n" \
             "  (macro for running `ggem tag && ggem push`)"
       assert_equal exp, subject.help
     end
@@ -736,6 +774,63 @@ class GGem::CLI
 
   end
 
+  class CommandSetTests < UnitTests
+    desc "CommandSet"
+    setup do
+      @unknown_cmd_block_called_with = nil
+      @set = CommandSet.new{ |*args| @unknown_cmd_block_called_with = args }
+    end
+    subject{ @set }
+
+    should have_imeths :add, :remove, :[], :size
+
+    should "add/rm commands, be able to look them up and know its size" do
+      assert_equal 0,  subject.size
+      assert_equal '', subject.to_s
+
+      subject.add(CommandSpy, 'test', 't', 'tst')
+      assert_equal 1, subject.size
+
+      assert_instance_of CommandSpy, subject['test']
+      assert_same subject['test'], subject['t']
+      assert_same subject['test'], subject['tst']
+
+      exp_strs = ["test (t, tst) # #{subject['test'].summary}"]
+      assert_equal exp_strs.join("\n"), subject.to_s
+
+      subject.add(CommandSpy, 'add1')
+      exp_strs << "add1          # #{subject['add1'].summary}"
+
+      @cmd_spy = CommandSpy.new
+      Assert.stub(@cmd_spy, :summary){ [nil, ''].choice }
+      Assert.stub(CommandSpy, :new){ @cmd_spy }
+
+      subject.add(CommandSpy, 'add2', 'add')
+      exp_strs << "add2 (add)    "
+
+      subject.add(CommandSpy, 'add3')
+      Assert.stub(subject['add3'], :summary){ [nil, ''].choice }
+      exp_strs << "add3          "
+
+      assert_equal exp_strs.join("\n"), subject.to_s
+
+      subject.remove('test')
+      subject.remove('add1')
+      subject.remove('add2')
+      subject.remove('add3')
+
+      assert_equal 0,  subject.size
+      assert_equal '', subject.to_s
+    end
+
+    should "call the given block when looking up unknown command names" do
+      unknown_cmd_name = Factory.string
+      subject[unknown_cmd_name]
+      assert_equal [unknown_cmd_name], @unknown_cmd_block_called_with
+    end
+
+  end
+
   class CLISpy
     attr_reader :run_called_with
 
@@ -751,7 +846,7 @@ class GGem::CLI
   class CommandSpy
     attr_reader :argv, :stdout, :stderr, :run_called
 
-    def initialize(stdout = nil, stderr = nil)
+    def initialize
       @argv = nil
       @stdout, @stderr = nil, nil
       @run_called = false
@@ -763,8 +858,12 @@ class GGem::CLI
       @run_called = true
     end
 
+    def summary
+      @summary ||= Factory.string
+    end
+
     def help
-      Factory.text
+      @help ||= Factory.text
     end
   end
 

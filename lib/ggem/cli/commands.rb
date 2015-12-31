@@ -26,8 +26,9 @@ class GGem::CLI
 
     def help
       "Usage: ggem [COMMAND] [options]\n\n" \
-      "Commands: #{COMMANDS.keys.sort.join(', ')}\n" \
-      "Options: #{@clirb}"
+      "Options: #{@clirb}\n" \
+      "Commands:\n" \
+      "#{COMMANDS.to_s.split("\n").map{ |l| "  #{l}" }.join("\n")}\n"
     end
 
   end
@@ -51,6 +52,10 @@ class GGem::CLI
         @clirb.parse!(argv)
         @stdout = stdout || $stdout
         @stderr = stderr || $stderr
+      end
+
+      def summary
+        ''
       end
 
     end
@@ -136,9 +141,15 @@ class GGem::CLI
       notify("initialized gem git repo"){ @repo.run_init_cmd }
     end
 
+    def summary
+      "Create a gem given a GEM-NAME"
+    end
+
     def help
       "Usage: ggem generate [options] GEM-NAME\n\n" \
-      "Options: #{@clirb}"
+      "Options: #{@clirb}\n" \
+      "Description:\n" \
+      "  #{self.summary}"
     end
 
   end
@@ -190,12 +201,16 @@ class GGem::CLI
       end
     end
 
+    def summary
+      "Build #{@spec.gem_file_name} into the " \
+      "#{GGem::Gemspec::BUILD_TO_DIRNAME} directory"
+    end
+
     def help
       "Usage: ggem build [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  Build #{@spec.gem_file_name} into the " \
-         "#{GGem::Gemspec::BUILD_TO_DIRNAME} directory"
+      "  #{self.summary}"
     end
 
   end
@@ -216,11 +231,15 @@ class GGem::CLI
       end
     end
 
+    def summary
+      "Build and install #{@spec.gem_file_name} into system gems"
+    end
+
     def help
       "Usage: ggem install [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  Build and install #{@spec.gem_file_name} into system gems"
+      "  #{self.summary}"
     end
 
   end
@@ -243,11 +262,15 @@ class GGem::CLI
       end
     end
 
+    def summary
+      "Push built #{@spec.gem_file_name} to #{@spec.push_host}"
+    end
+
     def help
       "Usage: ggem push [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  Push built #{@spec.gem_file_name} to #{@spec.push_host}"
+      "  #{self.summary}"
     end
 
   end
@@ -284,11 +307,15 @@ class GGem::CLI
       raise CommandExitError
     end
 
+    def summary
+      "Tag #{@spec.version_tag} and push git commits/tags"
+    end
+
     def help
       "Usage: ggem tag [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  Tag #{@spec.version_tag} and push git commits/tags"
+      "  #{self.summary}"
     end
 
   end
@@ -308,13 +335,66 @@ class GGem::CLI
       @push_command.run(argv)
     end
 
+    def summary
+      "Tag #{@spec.version_tag} and push built #{@spec.gem_file_name} to " \
+      "#{@spec.push_host}"
+    end
+
     def help
       "Usage: ggem release [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  Tag #{@spec.version_tag} and push built #{@spec.gem_file_name} to " \
-         "#{@spec.push_host}\n" \
+      "  #{self.summary}\n" \
       "  (macro for running `ggem tag && ggem push`)"
+    end
+
+  end
+
+  class CommandSet
+
+    def initialize(&unknown_cmd_block)
+      @lookup    = Hash.new{ |h,k| unknown_cmd_block.call(k) }
+      @names     = []
+      @aliases   = {}
+      @summaries = {}
+    end
+
+    def add(klass, name, *aliases)
+      begin
+        cmd = klass.new
+      rescue StandardError => err
+        # don't add any commands you can't init
+      else
+        ([name] + aliases).each{ |n| @lookup[n] = cmd }
+        @to_s = nil
+        @names << name
+        @aliases[name] = aliases.empty? ? '' : "(#{aliases.join(', ')})"
+        @summaries[name] = cmd.summary.to_s.empty? ? '' : "# #{cmd.summary}"
+      end
+    end
+
+    def remove(name)
+      @lookup.delete(name)
+      @names.delete(name)
+      @aliases.delete(name)
+      @to_s = nil
+    end
+
+    def [](name)
+      @lookup[name]
+    end
+
+    def size
+      @names.size
+    end
+
+    def to_s
+      max_name_size  = @names.map{ |n| n.size }.max || 0
+      max_alias_size = @aliases.values.map{ |v| v.size }.max || 0
+
+      @to_s ||= @names.map do |n|
+        "#{n.ljust(max_name_size)} #{@aliases[n].ljust(max_alias_size)} #{@summaries[n]}"
+      end.join("\n")
     end
 
   end

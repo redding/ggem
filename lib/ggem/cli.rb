@@ -6,19 +6,13 @@ module GGem
 
   class CLI
 
-    COMMANDS = Hash.new{ |h, k| InvalidCommand.new(k) }.tap do |h|
-      h['generate'] = GenerateCommand
-      h['g']        = GenerateCommand
-      h['build']    = BuildCommand
-      h['b']        = BuildCommand
-      h['install']  = InstallCommand
-      h['i']        = InstallCommand
-      h['push']     = PushCommand
-      h['p']        = PushCommand
-      h['tag']      = TagCommand
-      h['t']        = TagCommand
-      h['release']  = ReleaseCommand
-      h['r']        = ReleaseCommand
+    COMMANDS = CommandSet.new{ |unknown| InvalidCommand.new(unknown) }.tap do |c|
+      c.add(GenerateCommand, 'generate', 'g')
+      c.add(BuildCommand,    'build',    'b')
+      c.add(InstallCommand,  'install',  'i')
+      c.add(PushCommand,     'push',     'p')
+      c.add(TagCommand,      'tag',      't')
+      c.add(ReleaseCommand,  'release',  'r')
     end
 
     def self.run(args)
@@ -34,7 +28,7 @@ module GGem
     def run(args)
       begin
         cmd_name = args.shift
-        cmd = COMMANDS[cmd_name].new
+        cmd = COMMANDS[cmd_name]
         cmd.run(args)
       rescue CLIRB::HelpExit
         @stdout.puts cmd.help
