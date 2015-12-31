@@ -16,9 +16,7 @@ class GGem::CLI
       @clirb = CLIRB.new
     end
 
-    def new(*args)
-      self
-    end
+    def new; self; end
 
     def run(argv)
       @clirb.parse!([@name, argv].flatten.compact)
@@ -43,16 +41,16 @@ class GGem::CLI
 
     module InstanceMethods
 
-      def initialize(stdout = nil, stderr = nil)
-        @stdout = stdout || $stdout
-        @stderr = stderr || $stderr
+      def initialize
         @clirb  = CLIRB.new
       end
 
       def clirb; @clirb; end
 
-      def run(argv)
+      def run(argv, stdout = nil, stderr = nil)
         @clirb.parse!(argv)
+        @stdout = stdout || $stdout
+        @stderr = stderr || $stderr
       end
 
     end
@@ -121,7 +119,7 @@ class GGem::CLI
   class GenerateCommand
     include GitRepoCommand
 
-    def run(argv)
+    def run(argv, *args)
       super
 
       begin
@@ -162,8 +160,9 @@ class GGem::CLI
         begin
           @spec = GGem::Gemspec.new(Dir.pwd)
         rescue GGem::Gemspec::NotFoundError => exception
-          @stderr.puts "There are no gemspecs at #{Dir.pwd}"
-          raise CommandExitError
+          error = ArgumentError.new("There are no gemspecs at #{Dir.pwd}")
+          error.set_backtrace(exception.backtrace)
+          raise error
         end
       end
 
@@ -184,7 +183,7 @@ class GGem::CLI
   class BuildCommand
     include GemspecCommand
 
-    def run(argv)
+    def run(argv, *args)
       super
       notify("#{@spec.name} #{@spec.version} built to #{@spec.gem_file}") do
         @spec.run_build_cmd
@@ -209,7 +208,7 @@ class GGem::CLI
       @build_command = BuildCommand.new(*args)
     end
 
-    def run(argv)
+    def run(argv, *args)
       super
       @build_command.run(argv)
       notify("#{@spec.name} #{@spec.version} installed to system gems") do
@@ -234,7 +233,7 @@ class GGem::CLI
       @build_command = BuildCommand.new(*args)
     end
 
-    def run(argv)
+    def run(argv, *args)
       super
       @build_command.run(argv)
 
@@ -257,7 +256,7 @@ class GGem::CLI
     include GitRepoCommand
     include GemspecCommand
 
-    def run(argv)
+    def run(argv, *args)
       super
 
       begin
@@ -303,7 +302,7 @@ class GGem::CLI
       @push_command = PushCommand.new(*args)
     end
 
-    def run(argv)
+    def run(argv, *args)
       super
       @tag_command.run(argv)
       @push_command.run(argv)
