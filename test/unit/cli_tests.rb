@@ -1,6 +1,8 @@
 require 'assert'
 require 'ggem/cli'
 
+require 'ggem/cli/clirb'
+require 'ggem/cli/commands'
 require 'ggem/gem'
 require 'ggem/gemspec'
 require 'ggem/git_repo'
@@ -218,7 +220,7 @@ class GGem::CLI
       assert_equal @name, subject.name
       assert_equal [],    subject.argv
 
-      assert_instance_of GGem::CLIRB, subject.clirb
+      assert_instance_of CLIRB, subject.clirb
     end
 
     should "set its argv and return itself using `new`" do
@@ -229,13 +231,13 @@ class GGem::CLI
     end
 
     should "parse its argv on run" do
-      assert_raises(GGem::CLIRB::HelpExit){ subject.new([ '--help' ]).run }
-      assert_raises(GGem::CLIRB::VersionExit){ subject.new([ '--version' ]).run }
+      assert_raises(CLIRB::HelpExit){ subject.new([ '--help' ]).run }
+      assert_raises(CLIRB::VersionExit){ subject.new([ '--version' ]).run }
     end
 
     should "raise a help exit if its argv is empty" do
       cmd = @command_class.new([nil, ''].choice)
-      assert_raises(GGem::CLIRB::HelpExit){ cmd.new([]).run }
+      assert_raises(CLIRB::HelpExit){ cmd.new([]).run }
     end
 
     should "raise an invalid command error when run" do
@@ -270,7 +272,7 @@ class GGem::CLI
     should have_imeths :clirb, :run
 
     should "know its CLI.RB" do
-      assert_instance_of GGem::CLIRB, subject.clirb
+      assert_instance_of CLIRB, subject.clirb
     end
 
     should "parse its args when run" do

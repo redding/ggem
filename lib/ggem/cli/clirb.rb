@@ -1,4 +1,5 @@
-module GGem
+module GGem; end
+class GGem::CLI
 
   class CLIRB  # Version 1.0.0, https://github.com/redding/cli.rb
     Error    = Class.new(RuntimeError);
