@@ -13,10 +13,6 @@ class GGem::CLI
   class UnitTests < Assert::Context
     desc "GGem::CLI"
     setup do
-      @kernel_spy = KernelSpy.new
-      @stdout     = IOSpy.new
-      @stderr     = IOSpy.new
-
       @cli_class = GGem::CLI
     end
     subject{ @cli_class }
@@ -56,6 +52,10 @@ class GGem::CLI
   class InitTests < UnitTests
     desc "when init"
     setup do
+      @kernel_spy = KernelSpy.new
+      @stdout     = IOSpy.new
+      @stderr     = IOSpy.new
+
       @cli = @cli_class.new(@kernel_spy, @stdout, @stderr)
     end
     subject{ @cli }
@@ -221,8 +221,7 @@ class GGem::CLI
     end
 
     should "set its argv and return itself using `new`" do
-      args = [Factory.string, Factory.string]
-      assert_same subject, subject.new(args)
+      assert_same subject, subject.new
     end
 
     should "parse its argv on run" do
@@ -261,8 +260,7 @@ class GGem::CLI
     desc "ValidCommand"
     setup do
       @command_class = Class.new{ include ValidCommand }
-      @argv = Factory.integer(3).times.map{ Factory.string }
-      @cmd  = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should have_imeths :clirb, :run
@@ -272,8 +270,9 @@ class GGem::CLI
     end
 
     should "parse its args when run" do
-      subject.run(@argv)
-      assert_equal @argv, subject.clirb.args
+      argv = Factory.integer(3).times.map{ Factory.string }
+      subject.run(argv, @stdout, @stderr)
+      assert_equal argv, subject.clirb.args
     end
 
   end
@@ -285,8 +284,7 @@ class GGem::CLI
       Assert.stub(Dir, :pwd){ @gem1_root_path}
 
       @command_class = Class.new{ include GitRepoCommand }
-      @argv = Factory.integer(3).times.map{ Factory.string }
-      @cmd  = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a valid, notify cmd command" do
@@ -298,7 +296,7 @@ class GGem::CLI
       gitrepo_new_called_with = nil
       Assert.stub(GGem::GitRepo, :new){ |*args| gitrepo_new_called_with = args }
 
-      @command_class.new(@stdout, @stderr)
+      @command_class.new
       assert_equal [Dir.pwd], gitrepo_new_called_with
     end
 
@@ -350,7 +348,7 @@ class GGem::CLI
       end
 
       @command_class = GenerateCommand
-      @cmd = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a valid command" do
@@ -364,7 +362,7 @@ class GGem::CLI
     end
 
     should "save a gem and initialize a git repo for it when run" do
-      subject.run([@name])
+      subject.run([@name], @stdout, @stderr)
 
       assert_equal [@path, @name], @gem_new_called_with
       assert_true @gem_spy.save_called
@@ -401,8 +399,7 @@ class GGem::CLI
       Assert.stub(Dir, :pwd){ @gem1_root_path}
 
       @command_class = Class.new{ include GemspecCommand }
-      @argv = Factory.integer(3).times.map{ Factory.string }
-      @cmd  = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a valid, notify cmd command" do
@@ -414,7 +411,7 @@ class GGem::CLI
       gemspec_new_called_with = nil
       Assert.stub(GGem::Gemspec, :new){ |*args| gemspec_new_called_with = args }
 
-      @command_class.new(@stdout, @stderr)
+      @command_class.new
       assert_equal [Dir.pwd], gemspec_new_called_with
     end
 
@@ -422,11 +419,13 @@ class GGem::CLI
       root = Factory.path
       Assert.stub(Dir, :pwd){ root }
 
-      assert_raises(CommandExitError) do
-        @command_class.new(@stdout, @stderr)
+      begin
+        cmd = @command_class.new
+      rescue ArgumentError => err
       end
-      exp = "There are no gemspecs at #{Dir.pwd}\n"
-      assert_equal exp, @stderr.read
+      assert_not_nil err
+      exp = "There are no gemspecs at #{Dir.pwd}"
+      assert_equal exp, err.message
     end
 
   end
@@ -451,7 +450,7 @@ class GGem::CLI
     desc "BuildCommand"
     setup do
       @command_class = BuildCommand
-      @cmd = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a gemspec command" do
@@ -469,7 +468,7 @@ class GGem::CLI
 
     should "call the spec's run build cmd when run" do
       ENV['DEBUG'] = [nil, '1'].choice
-      subject.run([])
+      subject.run([], @stdout, @stderr)
 
       assert_true @spec_spy.run_build_cmd_called
 
@@ -484,7 +483,7 @@ class GGem::CLI
       err_msg = Factory.string
       Assert.stub(@spec_spy, :run_build_cmd){ raise GGem::Gemspec::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run([]) }
+      assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
 
@@ -500,7 +499,7 @@ class GGem::CLI
 
       @command_class = InstallCommand
       @argv = []
-      @cmd = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a gemspec command" do
@@ -521,7 +520,7 @@ class GGem::CLI
 
     should "run the build command and call the spec's run install cmds when run" do
       ENV['DEBUG'] = [nil, '1'].choice
-      subject.run(@argv)
+      subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
       assert_equal @argv, @build_spy.argv
@@ -538,7 +537,7 @@ class GGem::CLI
       err_msg = Factory.string
       Assert.stub(@spec_spy, :run_install_cmd){ raise GGem::Gemspec::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run(@argv) }
+      assert_raises(CommandExitError){ subject.run(@argv, @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
 
@@ -554,7 +553,7 @@ class GGem::CLI
 
       @command_class = PushCommand
       @argv = []
-      @cmd = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a gemspec command" do
@@ -575,7 +574,7 @@ class GGem::CLI
 
     should "run the build command and call the spec's run push cmds when run" do
       ENV['DEBUG'] = [nil, '1'].choice
-      subject.run(@argv)
+      subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
       assert_equal @argv, @build_spy.argv
@@ -593,7 +592,7 @@ class GGem::CLI
       err_msg = Factory.string
       Assert.stub(@spec_spy, :run_push_cmd){ raise GGem::Gemspec::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run(@argv) }
+      assert_raises(CommandExitError){ subject.run(@argv, @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
 
@@ -606,7 +605,7 @@ class GGem::CLI
     desc "TagCommand"
     setup do
       @command_class = TagCommand
-      @cmd = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a gemspec command" do
@@ -623,7 +622,7 @@ class GGem::CLI
 
     should "call the repo's run build/push cmds when run" do
       ENV['DEBUG'] = [nil, '1'].choice
-      subject.run([])
+      subject.run([], @stdout, @stderr)
 
       assert_true @repo_spy.run_validate_clean_cmd_called
       assert_true @repo_spy.run_validate_committed_cmd_called
@@ -654,7 +653,7 @@ class GGem::CLI
       err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].choice
       Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run([]) }
+      assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       exp = "There are files that need to be committed first.\n"
       assert_equal exp, @stderr.read
     end
@@ -664,7 +663,7 @@ class GGem::CLI
       err_on = [:run_add_version_tag_cmd, :run_push_cmd].choice
       Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run([]) }
+      assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
 
@@ -672,7 +671,7 @@ class GGem::CLI
       err_msg = Factory.string
       Assert.stub(@repo_spy, :run_push_cmd){ raise GGem::GitRepo::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run([]) }
+      assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
 
       exp = [@spec_spy.version_tag]
@@ -684,7 +683,7 @@ class GGem::CLI
       err_msg = Factory.string
       Assert.stub(@repo_spy, :run_rm_tag_cmd){ raise GGem::GitRepo::CmdError, err_msg }
 
-      assert_raises(CommandExitError){ subject.run([]) }
+      assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
 
@@ -703,7 +702,7 @@ class GGem::CLI
 
       @command_class = ReleaseCommand
       @argv = []
-      @cmd = @command_class.new(@stdout, @stderr)
+      @cmd = @command_class.new
     end
 
     should "be a gemspec command" do
@@ -727,7 +726,7 @@ class GGem::CLI
     end
 
     should "run the tag and push command when run" do
-      subject.run(@argv)
+      subject.run(@argv, @stdout, @stderr)
 
       [@tag_spy, @push_spy].each do |spy|
         assert_true spy.run_called
@@ -754,12 +753,13 @@ class GGem::CLI
 
     def initialize(stdout = nil, stderr = nil)
       @argv = nil
-      @stdout, @stderr = stdout, stderr
+      @stdout, @stderr = nil, nil
       @run_called = false
     end
 
-    def run(argv)
+    def run(argv, stdout = nil, stderr = nil)
       @argv = argv
+      @stdout, @stderr = stdout, stderr
       @run_called = true
     end
 
