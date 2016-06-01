@@ -244,8 +244,33 @@ class GGem::CLI
 
   end
 
+  module ForceTagOptionCommand
+    include MuchPlugin
+
+    plugin_included do
+      include ValidCommand
+      include InstanceMethods
+    end
+
+    module InstanceMethods
+
+      def initialize
+        super do
+          option 'force-tag', 'force tagging even with uncommitted files', {
+            :abbrev => 'f'
+          }
+        end
+      end
+
+    end
+
+  end
+
   class PushCommand
     include GemspecCommand
+    # this option isn't used directly, but it is on the 'release' cmd which
+    # calls both the 'tag' cmd and this cmd with the same argv.
+    include ForceTagOptionCommand
 
     def initialize(*args)
       super
@@ -271,28 +296,6 @@ class GGem::CLI
       "Options: #{@clirb}\n" \
       "Description:\n" \
       "  #{self.summary}"
-    end
-
-  end
-
-  module ForceTagOptionCommand
-    include MuchPlugin
-
-    plugin_included do
-      include ValidCommand
-      include InstanceMethods
-    end
-
-    module InstanceMethods
-
-      def initialize
-        super do
-          option 'force-tag', 'force tagging even with uncommitted files', {
-            :abbrev => 'f'
-          }
-        end
-      end
-
     end
 
   end

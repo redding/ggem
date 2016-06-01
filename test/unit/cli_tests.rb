@@ -574,6 +574,24 @@ class GGem::CLI
 
   end
 
+  class ForceTagOptionCommandTests < IOCommandTests
+    desc "ForceTagOptionCommand"
+    setup do
+      @command_class = Class.new{ include ForceTagOptionCommand }
+      @cmd = @command_class.new
+    end
+
+    should "be a valid command" do
+      assert_kind_of ValidCommand, subject
+    end
+
+    should "add a force-tag CLIRB option" do
+      subject.run(['-f'], @stdout, @stderr)
+      assert_true subject.clirb.opts['force-tag']
+    end
+
+  end
+
   class PushCommandTests < IOCommandTests
     include GemspecSpyTests
 
@@ -587,8 +605,9 @@ class GGem::CLI
       @cmd = @command_class.new
     end
 
-    should "be a gemspec command" do
-      assert_kind_of GemspecCommand, subject
+    should "be a gemspec, force tag option command" do
+      assert_kind_of GemspecCommand,        subject
+      assert_kind_of ForceTagOptionCommand, subject
     end
 
     should "know its summary" do
@@ -634,24 +653,6 @@ class GGem::CLI
 
   end
 
-  class ForceTagOptionCommandTests < IOCommandTests
-    desc "ForceTagOptionCommand"
-    setup do
-      @command_class = Class.new{ include ForceTagOptionCommand }
-      @cmd = @command_class.new
-    end
-
-    should "be a valid command" do
-      assert_kind_of ValidCommand, subject
-    end
-
-    should "add a force-tag CLIRB option" do
-      subject.run(['-f'], @stdout, @stderr)
-      assert_true subject.clirb.opts['force-tag']
-    end
-
-  end
-
   class TagCommandTests < IOCommandTests
     include GitRepoSpyTests
     include GemspecSpyTests
@@ -663,8 +664,8 @@ class GGem::CLI
     end
 
     should "be a git repo, gemspec, force tag option command" do
-      assert_kind_of GitRepoCommand, subject
-      assert_kind_of GemspecCommand, subject
+      assert_kind_of GitRepoCommand,        subject
+      assert_kind_of GemspecCommand,        subject
       assert_kind_of ForceTagOptionCommand, subject
     end
 
@@ -778,7 +779,7 @@ class GGem::CLI
     end
 
     should "be a gemspec, force tag option command" do
-      assert_kind_of GemspecCommand, subject
+      assert_kind_of GemspecCommand,        subject
       assert_kind_of ForceTagOptionCommand, subject
     end
 
