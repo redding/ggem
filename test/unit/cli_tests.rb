@@ -252,6 +252,7 @@ class GGem::CLI
 
   class IOCommandTests < UnitTests
     setup do
+      @argv = [Factory.string]
       @stdout, @stderr = IOSpy.new, IOSpy.new
     end
     subject{ @cmd }
@@ -524,7 +525,6 @@ class GGem::CLI
       Assert.stub(BuildCommand, :new){ |*args| @build_spy = CommandSpy.new(*args) }
 
       @command_class = InstallCommand
-      @argv = []
       @cmd = @command_class.new
     end
 
@@ -545,7 +545,7 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "build a build command using its argv" do
+    should "build a build command" do
       assert @build_spy
     end
 
@@ -554,7 +554,7 @@ class GGem::CLI
       subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
-      assert_equal @argv, @build_spy.argv
+      assert_equal [], @build_spy.argv
       assert_true @spec_spy.run_install_cmd_called
 
       exp = ENV['DEBUG'] == '1' ? "install\ninstall cmd was run\n" : ''
@@ -583,7 +583,6 @@ class GGem::CLI
       Assert.stub(BuildCommand, :new){ |*args| @build_spy = CommandSpy.new(*args) }
 
       @command_class = PushCommand
-      @argv = []
       @cmd = @command_class.new
     end
 
@@ -604,7 +603,7 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "build a build command using its argv" do
+    should "build a build command" do
       assert @build_spy
     end
 
@@ -613,7 +612,7 @@ class GGem::CLI
       subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
-      assert_equal @argv, @build_spy.argv
+      assert_equal [], @build_spy.argv
       assert_true @spec_spy.run_push_cmd_called
 
       exp = "Pushing #{@spec_spy.gem_file_name} to #{@spec_spy.push_host}...\n"
@@ -724,7 +723,7 @@ class GGem::CLI
       err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].sample
       Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
 
-      subject.run(['-f'], @stdout, @stderr)
+      subject.run([['--force-tag', '-f'].sample], @stdout, @stderr)
       exp = "There are files that need to be committed first.\n" \
             "Forcing tag anyway...\n"
       assert_equal exp, @stderr.read
@@ -773,7 +772,6 @@ class GGem::CLI
       Assert.stub(PushCommand, :new){ |*args| @push_spy = CommandSpy.new(*args) }
 
       @command_class = ReleaseCommand
-      @argv = []
       @cmd = @command_class.new
     end
 
@@ -797,7 +795,7 @@ class GGem::CLI
       assert_equal exp, subject.help
     end
 
-    should "build a tag and push command using its argv" do
+    should "build a tag and push command" do
       [@tag_spy, @push_spy].each do |spy|
         assert spy
       end
@@ -806,10 +804,22 @@ class GGem::CLI
     should "run the tag and push command when run" do
       subject.run(@argv, @stdout, @stderr)
 
-      [@tag_spy, @push_spy].each do |spy|
-        assert_true spy.run_called
-        assert_equal @argv, spy.argv
-      end
+      assert_true @tag_spy.run_called
+      assert_equal [], @tag_spy.argv
+
+      assert_true @push_spy.run_called
+      assert_equal [], @push_spy.argv
+    end
+
+    should "pass any force-tag option to the tag cmd but not the release cmd" do
+      force_tag_argv = [['--force-tag', '-f'].sample]
+      subject.run(force_tag_argv, @stdout, @stderr)
+
+      assert_true @tag_spy.run_called
+      assert_equal ['--force-tag'], @tag_spy.argv
+
+      assert_true @push_spy.run_called
+      assert_equal [], @push_spy.argv
     end
 
   end

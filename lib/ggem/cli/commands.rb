@@ -225,7 +225,8 @@ class GGem::CLI
 
     def run(argv, *args)
       super
-      @build_command.run(argv)
+      @build_command.run([])
+
       notify("#{@spec.name} #{@spec.version} installed to system gems") do
         @spec.run_install_cmd
       end
@@ -254,7 +255,7 @@ class GGem::CLI
 
     def run(argv, *args)
       super
-      @build_command.run(argv)
+      @build_command.run([])
 
       @stdout.puts "Pushing #{@spec.gem_file_name} to #{@spec.push_host}..."
       notify("#{@spec.gem_file_name} received.") do
@@ -359,8 +360,8 @@ class GGem::CLI
 
     def run(argv, *args)
       super
-      @tag_command.run(argv)
-      @push_command.run(argv)
+      @tag_command.run(self.clirb.opts['force-tag'] ? ['--force-tag'] : [])
+      @push_command.run([])
     end
 
     def summary
