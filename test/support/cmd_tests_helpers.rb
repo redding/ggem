@@ -32,7 +32,7 @@ module GGem
       end
 
       def assert_exp_cmds_error(cmd_error_class, &run_cmd_block)
-        err_cmd_str = @exp_cmds_run.choice
+        err_cmd_str = @exp_cmds_run.sample
         Scmd.add_command(err_cmd_str) do |cmd|
           cmd.exitstatus = 1
           cmd.stderr     = Factory.string

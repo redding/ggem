@@ -231,7 +231,7 @@ class GGem::CLI
     end
 
     should "raise a help exit if its name is empty" do
-      cmd = @command_class.new([nil, ''].choice)
+      cmd = @command_class.new([nil, ''].sample)
       argv = [Factory.string, Factory.string]
       assert_raises(CLIRB::HelpExit){ cmd.new.run(argv) }
     end
@@ -485,7 +485,7 @@ class GGem::CLI
     end
 
     should "call the spec's run build cmd when run" do
-      ENV['DEBUG'] = [nil, '1'].choice
+      ENV['DEBUG'] = [nil, '1'].sample
       subject.run([], @stdout, @stderr)
 
       assert_true @spec_spy.run_build_cmd_called
@@ -542,7 +542,7 @@ class GGem::CLI
     end
 
     should "run the build command and call the spec's run install cmds when run" do
-      ENV['DEBUG'] = [nil, '1'].choice
+      ENV['DEBUG'] = [nil, '1'].sample
       subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
@@ -601,7 +601,7 @@ class GGem::CLI
     end
 
     should "run the build command and call the spec's run push cmds when run" do
-      ENV['DEBUG'] = [nil, '1'].choice
+      ENV['DEBUG'] = [nil, '1'].sample
       subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
@@ -654,7 +654,7 @@ class GGem::CLI
     end
 
     should "call the repo's run build/push cmds when run" do
-      ENV['DEBUG'] = [nil, '1'].choice
+      ENV['DEBUG'] = [nil, '1'].sample
       subject.run([], @stdout, @stderr)
 
       assert_true @repo_spy.run_validate_clean_cmd_called
@@ -683,7 +683,7 @@ class GGem::CLI
 
     should "handle validation cmd errors when run" do
       err_msg = Factory.string
-      err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].choice
+      err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].sample
       Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
 
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
@@ -693,7 +693,7 @@ class GGem::CLI
 
     should "handle non-validation cmd errors when run" do
       err_msg = Factory.string
-      err_on = [:run_add_version_tag_cmd, :run_push_cmd].choice
+      err_on = [:run_add_version_tag_cmd, :run_push_cmd].sample
       Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
 
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
@@ -802,14 +802,14 @@ class GGem::CLI
       exp_strs << "add1          # #{subject['add1'].summary}"
 
       @cmd_spy = CommandSpy.new
-      Assert.stub(@cmd_spy, :summary){ [nil, ''].choice }
+      Assert.stub(@cmd_spy, :summary){ [nil, ''].sample }
       Assert.stub(CommandSpy, :new){ @cmd_spy }
 
       subject.add(CommandSpy, 'add2', 'add')
       exp_strs << "add2 (add)    "
 
       subject.add(CommandSpy, 'add3')
-      Assert.stub(subject['add3'], :summary){ [nil, ''].choice }
+      Assert.stub(subject['add3'], :summary){ [nil, ''].sample }
       exp_strs << "add3          "
 
       assert_equal exp_strs.join("\n"), subject.to_s

@@ -29,7 +29,7 @@ class GGem::Gem
 
     should "complain if no name is provided" do
       assert_raises(NoNameError) do
-        @gem_class.new(TMP_PATH, [nil, ''].choice)
+        @gem_class.new(TMP_PATH, [nil, ''].sample)
       end
     end
 

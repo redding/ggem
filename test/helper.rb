@@ -12,3 +12,12 @@ TEST_SUPPORT_PATH = ROOT_PATH.join('test/support')
 require 'pry'
 
 require 'test/support/factory'
+
+# 1.8.7 backfills
+
+# Array#sample
+if !(a = Array.new).respond_to?(:sample) && a.respond_to?(:choice)
+  class Array
+    alias_method :sample, :choice
+  end
+end

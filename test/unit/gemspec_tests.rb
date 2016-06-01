@@ -71,7 +71,7 @@ class GGem::Gemspec
       # prefer the env push hosts over configured and default hosts
       prev_env_push_host = ENV['GGEM_PUSH_HOST']
       ENV['GGEM_PUSH_HOST'] = Factory.string
-      spec = @gemspec_class.new(TEST_SUPPORT_PATH.join(['gem1', 'gem2'].choice))
+      spec = @gemspec_class.new(TEST_SUPPORT_PATH.join(['gem1', 'gem2'].sample))
       assert_equal ENV['GGEM_PUSH_HOST'], spec.push_host
       ENV['GGEM_PUSH_HOST'] = prev_env_push_host
     end
