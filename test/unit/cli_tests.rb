@@ -277,6 +277,14 @@ class GGem::CLI
       assert_equal argv, subject.clirb.args
     end
 
+    should "take custom CLIRB build procs" do
+      cmd = @command_class.new do
+        option 'test', 'testing', :abbrev => 't'
+      end
+      cmd.run(['-t'], @stdout, @stderr)
+      assert_true cmd.clirb.opts['test']
+    end
+
     should "default its summary" do
       assert_equal '', subject.summary
     end
@@ -626,6 +634,24 @@ class GGem::CLI
 
   end
 
+  class ForceTagOptionCommandTests < IOCommandTests
+    desc "ForceTagOptionCommand"
+    setup do
+      @command_class = Class.new{ include ForceTagOptionCommand }
+      @cmd = @command_class.new
+    end
+
+    should "be a valid command" do
+      assert_kind_of ValidCommand, subject
+    end
+
+    should "add a force-tag CLIRB option" do
+      subject.run(['-f'], @stdout, @stderr)
+      assert_true subject.clirb.opts['force-tag']
+    end
+
+  end
+
   class TagCommandTests < IOCommandTests
     include GitRepoSpyTests
     include GemspecSpyTests
@@ -636,8 +662,10 @@ class GGem::CLI
       @cmd = @command_class.new
     end
 
-    should "be a gemspec command" do
+    should "be a git repo, gemspec, force tag option command" do
+      assert_kind_of GitRepoCommand, subject
       assert_kind_of GemspecCommand, subject
+      assert_kind_of ForceTagOptionCommand, subject
     end
 
     should "know its summary" do
@@ -691,6 +719,17 @@ class GGem::CLI
       assert_equal exp, @stderr.read
     end
 
+    should "ignore validation cmd errors when run with the force-tag option" do
+      err_msg = Factory.string
+      err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].sample
+      Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
+
+      subject.run(['-f'], @stdout, @stderr)
+      exp = "There are files that need to be committed first.\n" \
+            "Forcing tag anyway...\n"
+      assert_equal exp, @stderr.read
+    end
+
     should "handle non-validation cmd errors when run" do
       err_msg = Factory.string
       err_on = [:run_add_version_tag_cmd, :run_push_cmd].sample
@@ -738,8 +777,9 @@ class GGem::CLI
       @cmd = @command_class.new
     end
 
-    should "be a gemspec command" do
+    should "be a gemspec, force tag option command" do
       assert_kind_of GemspecCommand, subject
+      assert_kind_of ForceTagOptionCommand, subject
     end
 
     should "know its summary" do
