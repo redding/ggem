@@ -42,8 +42,8 @@ class GGem::CLI
 
     module InstanceMethods
 
-      def initialize
-        @clirb  = CLIRB.new
+      def initialize(&clirb_build)
+        @clirb = CLIRB.new(&clirb_build)
       end
 
       def clirb; @clirb; end
@@ -275,9 +275,32 @@ class GGem::CLI
 
   end
 
+  module ForceTagOptionCommand
+    include MuchPlugin
+
+    plugin_included do
+      include ValidCommand
+      include InstanceMethods
+    end
+
+    module InstanceMethods
+
+      def initialize
+        super do
+          option 'force-tag', 'force tagging even with uncommitted files', {
+            :abbrev => 'f'
+          }
+        end
+      end
+
+    end
+
+  end
+
   class TagCommand
     include GitRepoCommand
     include GemspecCommand
+    include ForceTagOptionCommand
 
     def run(argv, *args)
       super
@@ -287,7 +310,11 @@ class GGem::CLI
         cmd{ @repo.run_validate_committed_cmd }
       rescue GGem::GitRepo::CmdError => err
         @stderr.puts "There are files that need to be committed first."
-        raise CommandExitError
+        if self.clirb.opts['force-tag']
+          @stderr.puts "Forcing tag anyway..."
+        else
+          raise CommandExitError
+        end
       end
 
       cmd{ @repo.run_add_version_tag_cmd(@spec.version, @spec.version_tag) }
@@ -322,6 +349,7 @@ class GGem::CLI
 
   class ReleaseCommand
     include GemspecCommand
+    include ForceTagOptionCommand
 
     def initialize(*args)
       super
