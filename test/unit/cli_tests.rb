@@ -71,7 +71,7 @@ class GGem::CLI
       @argv = [@command_name, Factory.string]
 
       @command_class = Class.new
-      @command_spy  = CommandSpy.new
+      @command_spy   = CommandSpy.new
       Assert.stub(@command_class, :new){ @command_spy }
       COMMANDS.add(@command_class, @command_name)
 
