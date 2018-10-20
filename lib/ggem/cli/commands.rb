@@ -392,7 +392,7 @@ class GGem::CLI
       begin
         cmd = klass.new
       rescue StandardError => err
-        # don"t add any commands you can't init
+        # don't add any commands you can't init
       else
         ([name] + aliases).each{ |n| @lookup[n] = cmd }
         @to_s = nil

@@ -33,7 +33,7 @@ class GGem::Gem
       end
     end
 
-    # most of the gem"s behavior is covered in the system tests
+    # most of the gem's behavior is covered in the system tests
 
   end
 
