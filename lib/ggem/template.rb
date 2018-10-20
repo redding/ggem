@@ -31,6 +31,8 @@ module GGem
       save_file("test_support_factory.rb.erb", "test/support/factory.rb")
 
       save_empty_file("log/.gitkeep")
+      save_empty_file("test/system/.gitkeep")
+      save_empty_file("test/unit/.gitkeep")
       save_empty_file("tmp/.gitkeep")
     end
 
