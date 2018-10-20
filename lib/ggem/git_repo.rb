@@ -1,5 +1,5 @@
-require 'pathname'
-require 'scmd'
+require "pathname"
+require "scmd"
 
 module GGem
 

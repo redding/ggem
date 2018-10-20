@@ -29,11 +29,11 @@ class GGem::Gem
 
     should "complain if no name is provided" do
       assert_raises(NoNameError) do
-        @gem_class.new(TMP_PATH, [nil, ''].sample)
+        @gem_class.new(TMP_PATH, [nil, ""].sample)
       end
     end
 
-    # most of the gem's behavior is covered in the system tests
+    # most of the gem"s behavior is covered in the system tests
 
   end
 

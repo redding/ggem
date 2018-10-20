@@ -1,5 +1,5 @@
-require 'ggem/cli/clirb'
-require 'much-plugin'
+require "ggem/cli/clirb"
+require "much-plugin"
 
 module GGem; end
 class GGem::CLI
@@ -21,7 +21,7 @@ class GGem::CLI
     def run(argv)
       @clirb.parse!([@name, argv].flatten.compact)
       raise CLIRB::HelpExit if @name.to_s.empty?
-      raise InvalidCommandError, "'#{self.name}' is not a command."
+      raise InvalidCommandError, "`#{self.name}` is not a command."
     end
 
     def help
@@ -55,7 +55,7 @@ class GGem::CLI
       end
 
       def summary
-        ''
+        ""
       end
 
     end
@@ -80,7 +80,7 @@ class GGem::CLI
 
       def cmd(&cmd_block)
         cmd, status, output = cmd_block.call
-        if ENV['DEBUG']
+        if ENV["DEBUG"]
           @stdout.puts cmd
           @stdout.puts output
         end
@@ -103,7 +103,7 @@ class GGem::CLI
       def initialize(*args)
         super
 
-        require 'ggem/git_repo'
+        require "ggem/git_repo"
         @repo = GGem::GitRepo.new(Dir.pwd)
       end
 
@@ -128,7 +128,7 @@ class GGem::CLI
       super
 
       begin
-        require 'ggem/gem'
+        require "ggem/gem"
         path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
         @stdout.puts "created gem in #{path}"
       rescue GGem::Gem::NoNameError => exception
@@ -167,7 +167,7 @@ class GGem::CLI
       def initialize(*args)
         super
 
-        require 'ggem/gemspec'
+        require "ggem/gemspec"
         begin
           @spec = GGem::Gemspec.new(Dir.pwd)
         rescue GGem::Gemspec::NotFoundError => exception
@@ -288,8 +288,8 @@ class GGem::CLI
 
       def initialize
         super do
-          option 'force-tag', 'force tagging even with uncommitted files', {
-            :abbrev => 'f'
+          option "force-tag", "force tagging even with uncommitted files", {
+            :abbrev => "f"
           }
         end
       end
@@ -311,7 +311,7 @@ class GGem::CLI
         cmd{ @repo.run_validate_committed_cmd }
       rescue GGem::GitRepo::CmdError => err
         @stderr.puts "There are files that need to be committed first."
-        if self.clirb.opts['force-tag']
+        if self.clirb.opts["force-tag"]
           @stderr.puts "Forcing tag anyway..."
         else
           raise CommandExitError
@@ -360,7 +360,7 @@ class GGem::CLI
 
     def run(argv, *args)
       super
-      @tag_command.run(self.clirb.opts['force-tag'] ? ['--force-tag'] : [])
+      @tag_command.run(self.clirb.opts["force-tag"] ? ["--force-tag"] : [])
       @push_command.run([])
     end
 
@@ -392,13 +392,13 @@ class GGem::CLI
       begin
         cmd = klass.new
       rescue StandardError => err
-        # don't add any commands you can't init
+        # don"t add any commands you can't init
       else
         ([name] + aliases).each{ |n| @lookup[n] = cmd }
         @to_s = nil
         @names << name
-        @aliases[name] = aliases.empty? ? '' : "(#{aliases.join(', ')})"
-        @summaries[name] = cmd.summary.to_s.empty? ? '' : "# #{cmd.summary}"
+        @aliases[name] = aliases.empty? ? "" : "(#{aliases.join(", ")})"
+        @summaries[name] = cmd.summary.to_s.empty? ? "" : "# #{cmd.summary}"
       end
     end
 

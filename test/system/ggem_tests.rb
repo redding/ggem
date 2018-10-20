@@ -1,7 +1,7 @@
-require 'assert'
-require 'ggem'
+require "assert"
+require "ggem"
 
-require 'test/support/name_set'
+require "test/support/name_set"
 
 module GGem
 
@@ -29,9 +29,9 @@ module GGem
     def assert_gem_name_set(name_set)
       name_set.variations.each do |variation|
         the_gem = GGem::Gem.new(TMP_PATH, variation)
-        [:name, :module_name, :ruby_name].each do |name_type|
-          assert_equal name_set.send(name_type), the_gem.send(name_type)
-        end
+        assert_equal name_set.name,        the_gem.name
+        assert_equal name_set.module_name, the_gem.module_name
+        assert_equal name_set.ruby_name,   the_gem.ruby_name
       end
     end
 
@@ -64,7 +64,7 @@ module GGem
       paths   = (folders + files).collect{ |p| File.join(TMP_PATH, name_set.name, p) }
 
       paths.flatten.each do |path|
-        assert File.exists?(path), "'#{path}' does not exist"
+        assert File.exists?(path), "`#{path}` does not exist"
       end
     end
 

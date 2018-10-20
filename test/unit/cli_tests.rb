@@ -1,12 +1,12 @@
-require 'assert'
-require 'ggem/cli'
+require "assert"
+require "ggem/cli"
 
-require 'ggem/cli/clirb'
-require 'ggem/cli/commands'
-require 'ggem/gem'
-require 'ggem/gemspec'
-require 'ggem/git_repo'
-require 'much-plugin'
+require "ggem/cli/clirb"
+require "ggem/cli/commands"
+require "ggem/gem"
+require "ggem/gemspec"
+require "ggem/git_repo"
+require "much-plugin"
 
 class GGem::CLI
 
@@ -33,19 +33,19 @@ class GGem::CLI
 
       assert_instance_of InvalidCommand, COMMANDS[Factory.string]
 
-      assert_instance_of GenerateCommand, COMMANDS['generate']
-      assert_instance_of BuildCommand,    COMMANDS['build']
-      assert_instance_of InstallCommand,  COMMANDS['install']
-      assert_instance_of PushCommand,     COMMANDS['push']
-      assert_instance_of TagCommand,      COMMANDS['tag']
-      assert_instance_of ReleaseCommand,  COMMANDS['release']
+      assert_instance_of GenerateCommand, COMMANDS["generate"]
+      assert_instance_of BuildCommand,    COMMANDS["build"]
+      assert_instance_of InstallCommand,  COMMANDS["install"]
+      assert_instance_of PushCommand,     COMMANDS["push"]
+      assert_instance_of TagCommand,      COMMANDS["tag"]
+      assert_instance_of ReleaseCommand,  COMMANDS["release"]
 
-      assert_same COMMANDS['generate'], COMMANDS['g']
-      assert_same COMMANDS['build'],    COMMANDS['b']
-      assert_same COMMANDS['install'],  COMMANDS['i']
-      assert_same COMMANDS['push'],     COMMANDS['p']
-      assert_same COMMANDS['tag'],      COMMANDS['t']
-      assert_same COMMANDS['release'],  COMMANDS['r']
+      assert_same COMMANDS["generate"], COMMANDS["g"]
+      assert_same COMMANDS["build"],    COMMANDS["b"]
+      assert_same COMMANDS["install"],  COMMANDS["i"]
+      assert_same COMMANDS["push"],     COMMANDS["p"]
+      assert_same COMMANDS["tag"],      COMMANDS["t"]
+      assert_same COMMANDS["release"],  COMMANDS["r"]
     end
 
   end
@@ -125,7 +125,7 @@ class GGem::CLI
     end
 
     should "output that it is invalid and output the invalid command's help" do
-      exp = "'#{@name}' is not a command.\n\n"
+      exp = "`#{@name}` is not a command.\n\n"
       assert_equal exp, @stderr.read
       assert_equal @invalid_command.help, @stdout.read
     end
@@ -153,7 +153,7 @@ class GGem::CLI
   class RunWithHelpTests < RunSetupTests
     desc "and run with the help switch"
     setup do
-      @cli.run([ '--help' ])
+      @cli.run([ "--help" ])
     end
 
     should "output the invalid command's help" do
@@ -170,7 +170,7 @@ class GGem::CLI
   class RunWithVersionTests < RunSetupTests
     desc "and run with the version switch"
     setup do
-      @cli.run([ '--version' ])
+      @cli.run([ "--version" ])
     end
 
     should "have output its version" do
@@ -226,12 +226,12 @@ class GGem::CLI
     end
 
     should "parse its argv on run" do
-      assert_raises(CLIRB::HelpExit){ subject.new.run([ '--help' ]) }
-      assert_raises(CLIRB::VersionExit){ subject.new.run([ '--version' ]) }
+      assert_raises(CLIRB::HelpExit){ subject.new.run([ "--help" ]) }
+      assert_raises(CLIRB::VersionExit){ subject.new.run([ "--version" ]) }
     end
 
     should "raise a help exit if its name is empty" do
-      cmd = @command_class.new([nil, ''].sample)
+      cmd = @command_class.new([nil, ""].sample)
       argv = [Factory.string, Factory.string]
       assert_raises(CLIRB::HelpExit){ cmd.new.run(argv) }
     end
@@ -280,14 +280,14 @@ class GGem::CLI
 
     should "take custom CLIRB build procs" do
       cmd = @command_class.new do
-        option 'test', 'testing', :abbrev => 't'
+        option "test", "testing", :abbrev => "t"
       end
-      cmd.run(['-t'], @stdout, @stderr)
-      assert_true cmd.clirb.opts['test']
+      cmd.run(["-t"], @stdout, @stderr)
+      assert_true cmd.clirb.opts["test"]
     end
 
     should "default its summary" do
-      assert_equal '', subject.summary
+      assert_equal "", subject.summary
     end
 
   end
@@ -295,7 +295,7 @@ class GGem::CLI
   class GitRepoCommandTests < IOCommandTests
     desc "GitRepoCommand"
     setup do
-      @gem1_root_path = TEST_SUPPORT_PATH.join('gem1')
+      @gem1_root_path = TEST_SUPPORT_PATH.join("gem1")
       Assert.stub(Dir, :pwd){ @gem1_root_path}
 
       @command_class = Class.new{ include GitRepoCommand }
@@ -417,7 +417,7 @@ class GGem::CLI
   class GemspecCommandTests < IOCommandTests
     desc "GemspecCommand"
     setup do
-      @gem1_root_path = TEST_SUPPORT_PATH.join('gem1')
+      @gem1_root_path = TEST_SUPPORT_PATH.join("gem1")
       Assert.stub(Dir, :pwd){ @gem1_root_path}
 
       @command_class = Class.new{ include GemspecCommand }
@@ -494,16 +494,16 @@ class GGem::CLI
     end
 
     should "call the spec's run build cmd when run" do
-      ENV['DEBUG'] = [nil, '1'].sample
+      ENV["DEBUG"] = [nil, "1"].sample
       subject.run([], @stdout, @stderr)
 
       assert_true @spec_spy.run_build_cmd_called
 
-      exp = ENV['DEBUG'] == '1' ? "build\nbuild cmd was run\n" : ''
+      exp = ENV["DEBUG"] == "1" ? "build\nbuild cmd was run\n" : ""
       exp += "#{@spec_spy.name} #{@spec_spy.version} built to #{@spec_spy.gem_file}\n"
       assert_equal exp, @stdout.read
 
-      ENV['DEBUG'] = nil
+      ENV["DEBUG"] = nil
     end
 
     should "handle cmd errors when run" do
@@ -550,18 +550,18 @@ class GGem::CLI
     end
 
     should "run the build command and call the spec's run install cmds when run" do
-      ENV['DEBUG'] = [nil, '1'].sample
+      ENV["DEBUG"] = [nil, "1"].sample
       subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
       assert_equal [], @build_spy.argv
       assert_true @spec_spy.run_install_cmd_called
 
-      exp = ENV['DEBUG'] == '1' ? "install\ninstall cmd was run\n" : ''
+      exp = ENV["DEBUG"] == "1" ? "install\ninstall cmd was run\n" : ""
       exp += "#{@spec_spy.name} #{@spec_spy.version} installed to system gems\n"
       assert_includes exp, @stdout.read
 
-      ENV['DEBUG'] = nil
+      ENV["DEBUG"] = nil
     end
 
     should "handle cmd errors when run" do
@@ -608,7 +608,7 @@ class GGem::CLI
     end
 
     should "run the build command and call the spec's run push cmds when run" do
-      ENV['DEBUG'] = [nil, '1'].sample
+      ENV["DEBUG"] = [nil, "1"].sample
       subject.run(@argv, @stdout, @stderr)
 
       assert_true @build_spy.run_called
@@ -616,11 +616,11 @@ class GGem::CLI
       assert_true @spec_spy.run_push_cmd_called
 
       exp = "Pushing #{@spec_spy.gem_file_name} to #{@spec_spy.push_host}...\n"
-      exp += ENV['DEBUG'] == '1' ? "push\npush cmd was run\n" : ''
+      exp += ENV["DEBUG"] == "1" ? "push\npush cmd was run\n" : ""
       exp += "#{@spec_spy.gem_file_name} received.\n"
       assert_equal exp, @stdout.read
 
-      ENV['DEBUG'] = nil
+      ENV["DEBUG"] = nil
     end
 
     should "handle cmd errors when run" do
@@ -645,8 +645,8 @@ class GGem::CLI
     end
 
     should "add a force-tag CLIRB option" do
-      subject.run(['-f'], @stdout, @stderr)
-      assert_true subject.clirb.opts['force-tag']
+      subject.run(["-f"], @stdout, @stderr)
+      assert_true subject.clirb.opts["force-tag"]
     end
 
   end
@@ -681,7 +681,7 @@ class GGem::CLI
     end
 
     should "call the repo's run build/push cmds when run" do
-      ENV['DEBUG'] = [nil, '1'].sample
+      ENV["DEBUG"] = [nil, "1"].sample
       subject.run([], @stdout, @stderr)
 
       assert_true @repo_spy.run_validate_clean_cmd_called
@@ -693,19 +693,19 @@ class GGem::CLI
       assert_true @repo_spy.run_push_cmd_called
       assert_nil @repo_spy.run_rm_tag_cmd_called_with
 
-      exp = if ENV['DEBUG'] == '1'
+      exp = if ENV["DEBUG"] == "1"
         "validate clean\nvalidate clean cmd was run\n" \
         "validate committed\nvalidate committed cmd was run\n" \
         "add tag\nadd tag cmd was run\n"
       else
-        ''
+        ""
       end
       exp += "Tagged #{@spec_spy.version_tag}.\n"
-      exp += ENV['DEBUG'] == '1' ? "push\npush cmd was run\n" : ''
+      exp += ENV["DEBUG"] == "1" ? "push\npush cmd was run\n" : ""
       exp += "Pushed git commits and tags.\n"
       assert_equal exp, @stdout.read
 
-      ENV['DEBUG'] = nil
+      ENV["DEBUG"] = nil
     end
 
     should "handle validation cmd errors when run" do
@@ -723,7 +723,7 @@ class GGem::CLI
       err_on = [:run_validate_clean_cmd, :run_validate_committed_cmd].sample
       Assert.stub(@repo_spy, err_on){ raise GGem::GitRepo::CmdError, err_msg }
 
-      subject.run([['--force-tag', '-f'].sample], @stdout, @stderr)
+      subject.run([["--force-tag", "-f"].sample], @stdout, @stderr)
       exp = "There are files that need to be committed first.\n" \
             "Forcing tag anyway...\n"
       assert_equal exp, @stderr.read
@@ -812,11 +812,11 @@ class GGem::CLI
     end
 
     should "pass any force-tag option to the tag cmd but not the release cmd" do
-      force_tag_argv = [['--force-tag', '-f'].sample]
+      force_tag_argv = [["--force-tag", "-f"].sample]
       subject.run(force_tag_argv, @stdout, @stderr)
 
       assert_true @tag_spy.run_called
-      assert_equal ['--force-tag'], @tag_spy.argv
+      assert_equal ["--force-tag"], @tag_spy.argv
 
       assert_true @push_spy.run_called
       assert_equal [], @push_spy.argv
@@ -836,41 +836,41 @@ class GGem::CLI
 
     should "add/rm commands, be able to look them up and know its size" do
       assert_equal 0,  subject.size
-      assert_equal '', subject.to_s
+      assert_equal "", subject.to_s
 
-      subject.add(CommandSpy, 'test', 't', 'tst')
+      subject.add(CommandSpy, "test", "t", "tst")
       assert_equal 1, subject.size
 
-      assert_instance_of CommandSpy, subject['test']
-      assert_same subject['test'], subject['t']
-      assert_same subject['test'], subject['tst']
+      assert_instance_of CommandSpy, subject["test"]
+      assert_same subject["test"], subject["t"]
+      assert_same subject["test"], subject["tst"]
 
-      exp_strs = ["test (t, tst) # #{subject['test'].summary}"]
+      exp_strs = ["test (t, tst) # #{subject["test"].summary}"]
       assert_equal exp_strs.join("\n"), subject.to_s
 
-      subject.add(CommandSpy, 'add1')
-      exp_strs << "add1          # #{subject['add1'].summary}"
+      subject.add(CommandSpy, "add1")
+      exp_strs << "add1          # #{subject["add1"].summary}"
 
       @cmd_spy = CommandSpy.new
-      Assert.stub(@cmd_spy, :summary){ [nil, ''].sample }
+      Assert.stub(@cmd_spy, :summary){ [nil, ""].sample }
       Assert.stub(CommandSpy, :new){ @cmd_spy }
 
-      subject.add(CommandSpy, 'add2', 'add')
+      subject.add(CommandSpy, "add2", "add")
       exp_strs << "add2 (add)    "
 
-      subject.add(CommandSpy, 'add3')
-      Assert.stub(subject['add3'], :summary){ [nil, ''].sample }
+      subject.add(CommandSpy, "add3")
+      Assert.stub(subject["add3"], :summary){ [nil, ""].sample }
       exp_strs << "add3          "
 
       assert_equal exp_strs.join("\n"), subject.to_s
 
-      subject.remove('test')
-      subject.remove('add1')
-      subject.remove('add2')
-      subject.remove('add3')
+      subject.remove("test")
+      subject.remove("add1")
+      subject.remove("add2")
+      subject.remove("add3")
 
       assert_equal 0,  subject.size
-      assert_equal '', subject.to_s
+      assert_equal "", subject.to_s
     end
 
     should "call the given block when looking up unknown command names" do
@@ -991,17 +991,17 @@ class GGem::CLI
 
     def run_build_cmd
       @run_build_cmd_called = true
-      ['build', 0, 'build cmd was run']
+      ["build", 0, "build cmd was run"]
     end
 
     def run_install_cmd
       @run_install_cmd_called = true
-      ['install', 0, 'install cmd was run']
+      ["install", 0, "install cmd was run"]
     end
 
     def run_push_cmd
       @run_push_cmd_called = true
-      ['push', 0, 'push cmd was run']
+      ["push", 0, "push cmd was run"]
     end
 
   end
@@ -1029,32 +1029,32 @@ class GGem::CLI
 
     def run_init_cmd
       @run_init_cmd_called = true
-      ['init', 0, 'init cmd was run']
+      ["init", 0, "init cmd was run"]
     end
 
     def run_validate_clean_cmd
       @run_validate_clean_cmd_called = true
-      ['validate clean', 0, 'validate clean cmd was run']
+      ["validate clean", 0, "validate clean cmd was run"]
     end
 
     def run_validate_committed_cmd
       @run_validate_committed_cmd_called = true
-      ['validate committed', 0, 'validate committed cmd was run']
+      ["validate committed", 0, "validate committed cmd was run"]
     end
 
     def run_add_version_tag_cmd(*args)
       @run_add_version_tag_cmd_called_with = args
-      ['add tag', 0, 'add tag cmd was run']
+      ["add tag", 0, "add tag cmd was run"]
     end
 
     def run_rm_tag_cmd(*args)
       @run_rm_tag_cmd_called_with = args
-      ['rm tag', 0, 'rm tag cmd was run']
+      ["rm tag", 0, "rm tag cmd was run"]
     end
 
     def run_push_cmd
       @run_push_cmd_called = true
-      ['push', 0, 'push cmd was run']
+      ["push", 0, "push cmd was run"]
     end
 
   end

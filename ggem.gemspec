@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "ggem/version"
 
@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.summary     = %q{"Juh Gem", baby! (a gem utility CLI)}
   gem.description = %q{"Juh Gem", baby! (a gem utility CLI)}
   gem.homepage    = "http://github.com/redding/ggem"
-  gem.license     = 'MIT'
+  gem.license     = "MIT"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

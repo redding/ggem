@@ -1,7 +1,7 @@
 require "assert"
 require "ggem/git_repo"
 
-require 'test/support/cmd_tests_helpers'
+require "test/support/cmd_tests_helpers"
 
 class GGem::GitRepo
 
@@ -22,7 +22,7 @@ class GGem::GitRepo
   class InitTests < UnitTests
     desc "when init"
     setup do
-      @repo_path = TEST_SUPPORT_PATH.join('gem1')
+      @repo_path = TEST_SUPPORT_PATH.join("gem1")
       @repo = @git_repo_class.new(@repo_path)
     end
     subject{ @repo }

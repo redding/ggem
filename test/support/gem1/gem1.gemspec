@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email       = []
   gem.summary     = %q{Gem 1 summary}
   gem.description = %q{Gem 1 description}
-  gem.license     = 'MIT'
+  gem.license     = "MIT"
 
   gem.files         = []
   gem.executables   = []

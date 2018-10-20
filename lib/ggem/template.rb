@@ -1,5 +1,5 @@
-require 'erb'
-require 'fileutils'
+require "erb"
+require "fileutils"
 
 module GGem
 
@@ -18,20 +18,20 @@ module GGem
       save_folder "log"
       save_folder "tmp"
 
-      save_file('gitignore.erb', '.gitignore')
-      save_file('Gemfile.erb',   'Gemfile')
-      save_file('gemspec.erb',   "#{@gem.name}.gemspec")
-      save_file('README.md.erb', 'README.md')
-      save_file('LICENSE.erb',   'LICENSE')
+      save_file("gitignore.erb", ".gitignore")
+      save_file("Gemfile.erb",   "Gemfile")
+      save_file("gemspec.erb",   "#{@gem.name}.gemspec")
+      save_file("README.md.erb", "README.md")
+      save_file("LICENSE.erb",   "LICENSE")
 
-      save_file('lib.rb.erb',         "lib/#{@gem.ruby_name}.rb")
-      save_file('lib_version.rb.erb', "lib/#{@gem.ruby_name}/version.rb")
+      save_file("lib.rb.erb",         "lib/#{@gem.ruby_name}.rb")
+      save_file("lib_version.rb.erb", "lib/#{@gem.ruby_name}/version.rb")
 
-      save_file('test_helper.rb.erb',          'test/helper.rb')
-      save_file('test_support_factory.rb.erb', 'test/support/factory.rb')
+      save_file("test_helper.rb.erb",          "test/helper.rb")
+      save_file("test_support_factory.rb.erb", "test/support/factory.rb")
 
-      save_empty_file('log/.gitkeep')
-      save_empty_file('tmp/.gitkeep')
+      save_empty_file("log/.gitkeep")
+      save_empty_file("tmp/.gitkeep")
     end
 
     private
@@ -47,15 +47,15 @@ module GGem
     end
 
     def save_file(source, output)
-      source_file = File.join(File.dirname(__FILE__), 'template_file', source)
+      source_file = File.join(File.dirname(__FILE__), "template_file", source)
       output_file = File.join(@gem.root_path, @gem.name, output)
 
       if File.exists?(source_file)
         FileUtils.mkdir_p(File.dirname(output_file))
         erb = ERB.new(File.read(source_file))
-        File.open(output_file, 'w') {|f| f << erb.result(binding) }
+        File.open(output_file, "w") {|f| f << erb.result(binding) }
       else
-        raise ArgumentError, "the source file '#{source_file}' does not exist"
+        raise ArgumentError, "the source file `#{source_file}` does not exist"
       end
     end
 

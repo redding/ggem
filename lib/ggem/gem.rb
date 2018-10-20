@@ -1,5 +1,5 @@
-require 'fileutils'
-require 'ggem/template'
+require "fileutils"
+require "ggem/template"
 
 module GGem
 
@@ -22,8 +22,8 @@ module GGem
 
     def module_name
       transforms = {
-        '_' => '',
-        '-' => ''
+        "_" => "",
+        "-" => ""
       }
       @module_name ||= transform_name(transforms){ |part| part.capitalize }
     end
@@ -36,8 +36,8 @@ module GGem
 
     def normalize_name(name)
       und_camelcs = [ /([A-Z])([a-z])/, '_\1\2' ]
-      rm_dup_und  = [ /_+/, '_' ]
-      rm_lead_und = [ /^_/, ''  ]
+      rm_dup_und  = [ /_+/, "_" ]
+      rm_lead_und = [ /^_/, ""  ]
       name.gsub(*und_camelcs).gsub(*rm_dup_und).sub(*rm_lead_und).downcase
     end
 

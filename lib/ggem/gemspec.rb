@@ -1,13 +1,13 @@
-require 'pathname'
-require 'scmd'
+require "pathname"
+require "scmd"
 
 module GGem
 
   class Gemspec
 
-    PUSH_HOST_META_KEY = 'allowed_push_host'
-    DEFAULT_PUSH_HOST  = 'https://rubygems.org'.freeze
-    BUILD_TO_DIRNAME   = 'pkg'.freeze
+    PUSH_HOST_META_KEY = "allowed_push_host"
+    DEFAULT_PUSH_HOST  = "https://rubygems.org".freeze
+    BUILD_TO_DIRNAME   = "pkg".freeze
 
     attr_reader :path, :name, :version, :version_tag
     attr_reader :gem_file_name, :gem_file, :push_host
@@ -69,7 +69,7 @@ module GGem
     end
 
     def get_push_host(spec)
-      ENV['GGEM_PUSH_HOST'] || get_meta(spec)[PUSH_HOST_META_KEY] || DEFAULT_PUSH_HOST
+      ENV["GGEM_PUSH_HOST"] || get_meta(spec)[PUSH_HOST_META_KEY] || DEFAULT_PUSH_HOST
     end
 
     def get_meta(spec)

@@ -1,5 +1,5 @@
-require 'much-plugin'
-require 'scmd'
+require "much-plugin"
+require "scmd"
 
 module GGem
 
@@ -8,7 +8,7 @@ module GGem
 
     plugin_included do
       setup do
-        ENV['SCMD_TEST_MODE'] = '1'
+        ENV["SCMD_TEST_MODE"] = "1"
 
         @cmd_spy = nil
         Scmd.reset
@@ -17,7 +17,7 @@ module GGem
       end
       teardown do
         Scmd.reset
-        ENV.delete('SCMD_TEST_MODE')
+        ENV.delete("SCMD_TEST_MODE")
       end
 
       private

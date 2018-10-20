@@ -1,2 +1,2 @@
-require 'ggem/version'
-require 'ggem/gem'
+require "ggem/version"
+require "ggem/gem"

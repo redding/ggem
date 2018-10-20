@@ -1,8 +1,8 @@
 require "assert"
 require "ggem/gemspec"
 
-require 'ggem/version'
-require 'test/support/cmd_tests_helpers'
+require "ggem/version"
+require "test/support/cmd_tests_helpers"
 
 class GGem::Gemspec
 
@@ -14,15 +14,15 @@ class GGem::Gemspec
     subject{ @gemspec_class }
 
     should "know the push host meta key" do
-      assert_equal 'allowed_push_host', subject::PUSH_HOST_META_KEY
+      assert_equal "allowed_push_host", subject::PUSH_HOST_META_KEY
     end
 
     should "use Rubygems as its default push host" do
-      assert_equal 'https://rubygems.org', subject::DEFAULT_PUSH_HOST
+      assert_equal "https://rubygems.org", subject::DEFAULT_PUSH_HOST
     end
 
     should "know which dir to build gems to" do
-      assert_equal 'pkg', subject::BUILD_TO_DIRNAME
+      assert_equal "pkg", subject::BUILD_TO_DIRNAME
     end
 
     should "know its exceptions" do
@@ -36,7 +36,7 @@ class GGem::Gemspec
   class InitTests < UnitTests
     desc "when init"
     setup do
-      @gem1_root_path = TEST_SUPPORT_PATH.join('gem1')
+      @gem1_root_path = TEST_SUPPORT_PATH.join("gem1")
       @spec = @gemspec_class.new(@gem1_root_path)
     end
     subject{ @spec }
@@ -46,12 +46,12 @@ class GGem::Gemspec
     should have_imeths :run_build_cmd, :run_install_cmd, :run_push_cmd
 
     should "know its attrs" do
-      exp = @gem1_root_path.join('gem1.gemspec')
+      exp = @gem1_root_path.join("gem1.gemspec")
       assert_equal exp, subject.path
 
-      assert_equal 'gem1',   subject.name
-      assert_equal '0.1.0',  subject.version.to_s
-      assert_equal 'v0.1.0', subject.version_tag
+      assert_equal "gem1",   subject.name
+      assert_equal "0.1.0",  subject.version.to_s
+      assert_equal "v0.1.0", subject.version_tag
 
       exp = "#{subject.name}-#{subject.version}.gem"
       assert_equal exp, subject.gem_file_name
@@ -65,20 +65,20 @@ class GGem::Gemspec
       assert_equal @gemspec_class::DEFAULT_PUSH_HOST, subject.push_host
 
       # gem2 has a meta host specified, so that is used over the default
-      gem2_spec = @gemspec_class.new(TEST_SUPPORT_PATH.join('gem2'))
-      assert_equal 'http://gems.example.com', gem2_spec.push_host
+      gem2_spec = @gemspec_class.new(TEST_SUPPORT_PATH.join("gem2"))
+      assert_equal "http://gems.example.com", gem2_spec.push_host
 
       # prefer the env push hosts over configured and default hosts
-      prev_env_push_host = ENV['GGEM_PUSH_HOST']
-      ENV['GGEM_PUSH_HOST'] = Factory.string
-      spec = @gemspec_class.new(TEST_SUPPORT_PATH.join(['gem1', 'gem2'].sample))
-      assert_equal ENV['GGEM_PUSH_HOST'], spec.push_host
-      ENV['GGEM_PUSH_HOST'] = prev_env_push_host
+      prev_env_push_host = ENV["GGEM_PUSH_HOST"]
+      ENV["GGEM_PUSH_HOST"] = Factory.string
+      spec = @gemspec_class.new(TEST_SUPPORT_PATH.join(["gem1", "gem2"].sample))
+      assert_equal ENV["GGEM_PUSH_HOST"], spec.push_host
+      ENV["GGEM_PUSH_HOST"] = prev_env_push_host
     end
 
     should "complain if the given gemspec root doesn't exist" do
       assert_raises(NotFoundError) do
-        @gemspec_class.new('path/that-is/not-found')
+        @gemspec_class.new("path/that-is/not-found")
       end
     end
 

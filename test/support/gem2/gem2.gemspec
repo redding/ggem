@@ -6,9 +6,9 @@ Gem::Specification.new do |gem|
   gem.email       = []
   gem.summary     = %q{Gem 2 summary}
   gem.description = %q{Gem 2 description}
-  gem.license     = 'MIT'
+  gem.license     = "MIT"
 
-  gem.metadata['allowed_push_host'] = 'http://gems.example.com'
+  gem.metadata["allowed_push_host"] = "http://gems.example.com"
 
   gem.files         = []
   gem.executables   = []
