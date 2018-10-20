@@ -58,6 +58,9 @@ The `generate` command creates a folder and files for developing, testing, and r
 * adds `TODO` entries in files where user input is needed
 * source control using [Git](https://git-scm.com/)
 * test using [Assert](https://github.com/redding/assert)
+* CI with CircleCI
+  * see `.circleci/config.yml`
+  * need to replace `/todo_org_name` with the gem's org name (ie `/redding`)
 
 You can also call this command using the `g` alias: `ggem g -h`.
 

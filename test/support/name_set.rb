@@ -6,6 +6,7 @@ module GGem
 
       def expected_folders
         [ "",
+          ".circleci",
           "lib",
           "lib/#{@ruby_name}",
           "test",
@@ -18,7 +19,9 @@ module GGem
       end
 
       def expected_files
-        [ ".gitignore",
+        [ ".circleci/config.yml",
+
+          ".gitignore",
           "Gemfile",
           "#{@name}.gemspec",
           "README.md",

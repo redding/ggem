@@ -11,12 +11,15 @@ module GGem
 
     def save
       save_folder # (gem root path)
+      save_folder ".circleci"
       save_folder "lib/#{@gem.ruby_name}"
       save_folder "test/support"
       save_folder "test/system"
       save_folder "test/unit"
       save_folder "log"
       save_folder "tmp"
+
+      save_file("circleci_config.yml.erb", ".circleci/config.yml")
 
       save_file("gitignore.erb", ".gitignore")
       save_file("Gemfile.erb",   "Gemfile")
