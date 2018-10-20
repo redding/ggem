@@ -21,6 +21,7 @@ module GGem
 
       save_file("circleci_config.yml.erb", ".circleci/config.yml")
 
+      save_file("ruby-version.erb", ".ruby-version")
       save_file("gitignore.erb", ".gitignore")
       save_file("Gemfile.erb",   "Gemfile")
       save_file("gemspec.erb",   "#{@gem.name}.gemspec")

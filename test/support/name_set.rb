@@ -21,6 +21,7 @@ module GGem
       def expected_files
         [ ".circleci/config.yml",
 
+          ".ruby-version",
           ".gitignore",
           "Gemfile",
           "#{@name}.gemspec",
