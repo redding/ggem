@@ -31,6 +31,8 @@ module GGem
           "test/support/factory.rb",
 
           "log/.gitkeep",
+          "test/system/.gitkeep",
+          "test/unit/.gitkeep",
           "tmp/.gitkeep",
         ]
       end
