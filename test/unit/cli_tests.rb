@@ -9,7 +9,6 @@ require "ggem/git_repo"
 require "much-plugin"
 
 class GGem::CLI
-
   class UnitTests < Assert::Context
     desc "GGem::CLI"
     setup do
@@ -47,7 +46,6 @@ class GGem::CLI
       assert_same COMMANDS["tag"],      COMMANDS["t"]
       assert_same COMMANDS["release"],  COMMANDS["r"]
     end
-
   end
 
   class InitTests < UnitTests
@@ -62,7 +60,6 @@ class GGem::CLI
     subject{ @cli }
 
     should have_imeths :run
-
   end
 
   class RunSetupTests < InitTests
@@ -80,7 +77,6 @@ class GGem::CLI
     teardown do
       COMMANDS.remove(@command_name)
     end
-
   end
 
   class RunTests < RunSetupTests
@@ -96,7 +92,6 @@ class GGem::CLI
     should "have successfully exited" do
       assert_equal 0, @kernel_spy.exit_status
     end
-
   end
 
   class RunWithNoArgsTests < RunSetupTests
@@ -113,7 +108,6 @@ class GGem::CLI
     should "have successfully exited" do
       assert_equal 0, @kernel_spy.exit_status
     end
-
   end
 
   class RunWithInvalidCommandTests < RunSetupTests
@@ -133,7 +127,6 @@ class GGem::CLI
     should "have unsuccessfully exited" do
       assert_equal 1, @kernel_spy.exit_status
     end
-
   end
 
   class RunWithCommandExitErrorTests < RunSetupTests
@@ -147,7 +140,6 @@ class GGem::CLI
       assert_equal 1, @kernel_spy.exit_status
       assert_empty @stderr.read
     end
-
   end
 
   class RunWithHelpTests < RunSetupTests
@@ -164,7 +156,6 @@ class GGem::CLI
     should "have successfully exited" do
       assert_equal 0, @kernel_spy.exit_status
     end
-
   end
 
   class RunWithVersionTests < RunSetupTests
@@ -181,7 +172,6 @@ class GGem::CLI
     should "have successfully exited" do
       assert_equal 0, @kernel_spy.exit_status
     end
-
   end
 
   class RunWithErrorTests < RunSetupTests
@@ -201,7 +191,6 @@ class GGem::CLI
     should "have unsuccessfully exited" do
       assert_equal 1, @kernel_spy.exit_status
     end
-
   end
 
   class InvalidCommandTests < UnitTests
@@ -247,7 +236,6 @@ class GGem::CLI
             "#{COMMANDS.to_s.split("\n").map{ |l| "  #{l}" }.join("\n")}\n"
       assert_equal exp, subject.help
     end
-
   end
 
   class IOCommandTests < UnitTests
@@ -256,7 +244,6 @@ class GGem::CLI
       @stdout, @stderr = IOSpy.new, IOSpy.new
     end
     subject{ @cmd }
-
   end
 
   class ValidCommandTests < IOCommandTests
@@ -289,7 +276,6 @@ class GGem::CLI
     should "default its summary" do
       assert_equal "", subject.summary
     end
-
   end
 
   class GitRepoCommandTests < IOCommandTests
@@ -314,7 +300,6 @@ class GGem::CLI
       @command_class.new
       assert_equal [Dir.pwd], gitrepo_new_called_with
     end
-
   end
 
   module RootPathTests
@@ -326,7 +311,6 @@ class GGem::CLI
         Assert.stub(Dir, :pwd){ @root_path }
       end
     end
-
   end
 
   module GitRepoSpyTests
@@ -339,9 +323,7 @@ class GGem::CLI
         @repo_spy = nil
         Assert.stub(GGem::GitRepo, :new){ |*args| @repo_spy = GitRepoSpy.new(*args) }
       end
-
     end
-
   end
 
   class GenerateCommandTests < IOCommandTests
@@ -411,7 +393,6 @@ class GGem::CLI
       assert_equal exp, err.message
       assert_not_empty err.backtrace
     end
-
   end
 
   class GemspecCommandTests < IOCommandTests
@@ -449,7 +430,6 @@ class GGem::CLI
       exp = "There are no gemspecs at #{Dir.pwd}"
       assert_equal exp, err.message
     end
-
   end
 
   module GemspecSpyTests
@@ -463,7 +443,6 @@ class GGem::CLI
         Assert.stub(GGem::Gemspec, :new){ |*args| @spec_spy = GemspecSpy.new(*args) }
       end
     end
-
   end
 
   class BuildCommandTests < IOCommandTests
@@ -513,7 +492,6 @@ class GGem::CLI
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
-
   end
 
   class InstallCommandTests < IOCommandTests
@@ -571,7 +549,6 @@ class GGem::CLI
       assert_raises(CommandExitError){ subject.run(@argv, @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
-
   end
 
   class PushCommandTests < IOCommandTests
@@ -630,7 +607,6 @@ class GGem::CLI
       assert_raises(CommandExitError){ subject.run(@argv, @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
-
   end
 
   class ForceTagOptionCommandTests < IOCommandTests
@@ -648,7 +624,6 @@ class GGem::CLI
       subject.run(["-f"], @stdout, @stderr)
       assert_true subject.clirb.opts["force-tag"]
     end
-
   end
 
   class TagCommandTests < IOCommandTests
@@ -757,7 +732,6 @@ class GGem::CLI
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
     end
-
   end
 
   class ReleaseCommandTests < IOCommandTests
@@ -821,7 +795,6 @@ class GGem::CLI
       assert_true @push_spy.run_called
       assert_equal [], @push_spy.argv
     end
-
   end
 
   class CommandSetTests < UnitTests
@@ -878,7 +851,6 @@ class GGem::CLI
       subject[unknown_cmd_name]
       assert_equal [unknown_cmd_name], @unknown_cmd_block_called_with
     end
-
   end
 
   class CLISpy
@@ -1003,7 +975,6 @@ class GGem::CLI
       @run_push_cmd_called = true
       ["push", 0, "push cmd was run"]
     end
-
   end
 
   class GitRepoSpy
@@ -1056,7 +1027,5 @@ class GGem::CLI
       @run_push_cmd_called = true
       ["push", 0, "push cmd was run"]
     end
-
   end
-
 end

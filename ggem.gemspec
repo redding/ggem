@@ -18,11 +18,11 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.required_ruby_version = '> 1.8'
+  gem.required_ruby_version = "~> 2.5"
 
-  gem.add_development_dependency("assert", ["~> 2.17.0"])
+  gem.add_development_dependency("assert", ["~> 2.18.2"])
 
-  gem.add_dependency("much-plugin", ["~> 0.2.0"])
+  gem.add_dependency("much-plugin", ["~> 0.2.2"])
   gem.add_dependency("scmd",        ["~> 3.0.3"])
 
 end

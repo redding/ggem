@@ -4,7 +4,6 @@ require "ggem"
 require "test/support/name_set"
 
 module GGem
-
   class SystemTests < Assert::Context
 
     NS_SIMPLE = GGem::NameSet::Simple
@@ -12,7 +11,6 @@ module GGem
     NS_HYPHEN = GGem::NameSet::HyphenatedOther
 
     desc "GGem"
-
   end
 
   class GemTests < SystemTests
@@ -34,7 +32,6 @@ module GGem
         assert_equal name_set.ruby_name,   the_gem.ruby_name
       end
     end
-
   end
 
   class GemSaveTests < GemTests
@@ -67,7 +64,5 @@ module GGem
         assert File.exists?(path), "`#{path}` does not exist"
       end
     end
-
   end
-
 end

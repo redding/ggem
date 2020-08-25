@@ -2,13 +2,11 @@ require "assert"
 require "ggem/gem"
 
 class GGem::Gem
-
   class UnitTests < Assert::Context
     desc "GGem::Gem"
     setup do
       @gem_class = GGem::Gem
     end
-
   end
 
   class InitTests < UnitTests
@@ -34,7 +32,5 @@ class GGem::Gem
     end
 
     # most of the gem's behavior is covered in the system tests
-
   end
-
 end

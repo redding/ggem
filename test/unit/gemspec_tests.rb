@@ -5,7 +5,6 @@ require "ggem/version"
 require "test/support/cmd_tests_helpers"
 
 class GGem::Gemspec
-
   class UnitTests < Assert::Context
     desc "GGem::Gemspec"
     setup do
@@ -30,7 +29,6 @@ class GGem::Gemspec
       assert subject::LoadError < ArgumentError
       assert subject::CmdError < RuntimeError
     end
-
   end
 
   class InitTests < UnitTests
@@ -87,16 +85,15 @@ class GGem::Gemspec
         @gemspec_class.new(TEST_SUPPORT_PATH)
       end
     end
-
   end
 
   class CmdTests < InitTests
     include GGem::CmdTestsHelpers
+
     setup do
       @exp_build_path = @gem1_root_path.join(subject.gem_file_name)
       @exp_pkg_path   = @gem1_root_path.join(@gemspec_class::BUILD_TO_DIRNAME, subject.gem_file_name)
     end
-
   end
 
   class RunBuildCmdTests < CmdTests
@@ -116,7 +113,6 @@ class GGem::Gemspec
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_build_cmd }
     end
-
   end
 
   class RunInstallCmdTests < CmdTests
@@ -132,7 +128,6 @@ class GGem::Gemspec
     should "complain if the system cmd is not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_install_cmd }
     end
-
   end
 
   class RunPushCmdTests < CmdTests
@@ -148,7 +143,5 @@ class GGem::Gemspec
     should "complain if the system cmd is not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_push_cmd }
     end
-
   end
-
 end

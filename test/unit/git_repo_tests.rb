@@ -4,7 +4,6 @@ require "ggem/git_repo"
 require "test/support/cmd_tests_helpers"
 
 class GGem::GitRepo
-
   class UnitTests < Assert::Context
     desc "GGem::GitRepo"
     setup do
@@ -16,7 +15,6 @@ class GGem::GitRepo
       assert subject::NotFoundError < ArgumentError
       assert subject::CmdError < RuntimeError
     end
-
   end
 
   class InitTests < UnitTests
@@ -36,12 +34,10 @@ class GGem::GitRepo
     should "know its path" do
       assert_equal @repo_path, subject.path
     end
-
   end
 
   class CmdTests < InitTests
     include GGem::CmdTestsHelpers
-
   end
 
   class RunInitCmdTests < CmdTests
@@ -49,7 +45,7 @@ class GGem::GitRepo
     setup do
       @exp_cmds_run = [
         "cd #{@repo_path} && git init",
-        "cd #{@repo_path} && git add --all && git add -f *.gitkeep"
+        "cd #{@repo_path} && git add --all && git add -f *.keep"
       ]
     end
 
@@ -60,7 +56,6 @@ class GGem::GitRepo
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_init_cmd }
     end
-
   end
 
   class RunValidateCleanCmdTests < CmdTests
@@ -78,7 +73,6 @@ class GGem::GitRepo
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_validate_clean_cmd }
     end
-
   end
 
   class RunValidateCommittedCmdTests < CmdTests
@@ -96,7 +90,6 @@ class GGem::GitRepo
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_validate_committed_cmd }
     end
-
   end
 
   class RunPushCmdTests < CmdTests
@@ -115,7 +108,6 @@ class GGem::GitRepo
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_push_cmd }
     end
-
   end
 
   class RunAddVersionTagCmdTests < CmdTests
@@ -136,7 +128,6 @@ class GGem::GitRepo
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_add_version_tag_cmd(@version, @tag) }
     end
-
   end
 
   class RunRmTagCmdTests < CmdTests
@@ -156,7 +147,5 @@ class GGem::GitRepo
     should "complain if any system cmds are not successful" do
       assert_exp_cmds_error(CmdError){ subject.run_rm_tag_cmd(@tag) }
     end
-
   end
-
 end

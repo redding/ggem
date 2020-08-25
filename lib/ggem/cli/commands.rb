@@ -3,12 +3,10 @@ require "much-plugin"
 
 module GGem; end
 class GGem::CLI
-
   InvalidCommandError = Class.new(ArgumentError)
   CommandExitError    = Class.new(RuntimeError)
 
   class InvalidCommand
-
     attr_reader :name, :clirb
 
     def initialize(name)
@@ -30,18 +28,12 @@ class GGem::CLI
       "Commands:\n" \
       "#{COMMANDS.to_s.split("\n").map{ |l| "  #{l}" }.join("\n")}\n"
     end
-
   end
 
   module ValidCommand
     include MuchPlugin
 
-    plugin_included do
-      include InstanceMethods
-    end
-
-    module InstanceMethods
-
+    plugin_instance_methods do
       def initialize(&clirb_build)
         @clirb = CLIRB.new(&clirb_build)
       end
@@ -57,20 +49,13 @@ class GGem::CLI
       def summary
         ""
       end
-
     end
-
   end
 
   module NotifyCmdCommand
     include MuchPlugin
 
-    plugin_included do
-      include InstanceMethods
-    end
-
-    module InstanceMethods
-
+    plugin_instance_methods do
       private
 
       def notify(success_msg, &cmd_block)
@@ -85,9 +70,7 @@ class GGem::CLI
           @stdout.puts output
         end
       end
-
     end
-
   end
 
   module GitRepoCommand
@@ -96,10 +79,9 @@ class GGem::CLI
     plugin_included do
       include ValidCommand
       include NotifyCmdCommand
-      include InstanceMethods
     end
 
-    module InstanceMethods
+    plugin_instance_methods do
       def initialize(*args)
         super
 
@@ -117,7 +99,6 @@ class GGem::CLI
           raise CommandExitError
         end
       end
-
     end
   end
 
@@ -151,7 +132,6 @@ class GGem::CLI
       "Description:\n" \
       "  #{self.summary}"
     end
-
   end
 
   module GemspecCommand
@@ -160,10 +140,9 @@ class GGem::CLI
     plugin_included do
       include ValidCommand
       include NotifyCmdCommand
-      include InstanceMethods
     end
 
-    module InstanceMethods
+    plugin_instance_methods do
       def initialize(*args)
         super
 
@@ -187,7 +166,6 @@ class GGem::CLI
           raise CommandExitError
         end
       end
-
     end
   end
 
@@ -212,7 +190,6 @@ class GGem::CLI
       "Description:\n" \
       "  #{self.summary}"
     end
-
   end
 
   class InstallCommand
@@ -242,7 +219,6 @@ class GGem::CLI
       "Description:\n" \
       "  #{self.summary}"
     end
-
   end
 
   class PushCommand
@@ -273,7 +249,6 @@ class GGem::CLI
       "Description:\n" \
       "  #{self.summary}"
     end
-
   end
 
   module ForceTagOptionCommand
@@ -281,11 +256,9 @@ class GGem::CLI
 
     plugin_included do
       include ValidCommand
-      include InstanceMethods
     end
 
-    module InstanceMethods
-
+    plugin_instance_methods do
       def initialize
         super do
           option "force-tag", "force tagging even with uncommitted files", {
@@ -293,9 +266,7 @@ class GGem::CLI
           }
         end
       end
-
     end
-
   end
 
   class TagCommand
@@ -345,7 +316,6 @@ class GGem::CLI
       "Description:\n" \
       "  #{self.summary}"
     end
-
   end
 
   class ReleaseCommand
@@ -376,11 +346,9 @@ class GGem::CLI
       "  #{self.summary}\n" \
       "  (macro for running `ggem tag && ggem push`)"
     end
-
   end
 
   class CommandSet
-
     def initialize(&unknown_cmd_block)
       @lookup    = Hash.new{ |h,k| unknown_cmd_block.call(k) }
       @names     = []
@@ -425,7 +393,5 @@ class GGem::CLI
         "#{n.ljust(max_name_size)} #{@aliases[n].ljust(max_alias_size)} #{@summaries[n]}"
       end.join("\n")
     end
-
   end
-
 end
