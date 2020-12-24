@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = "~> 2.5"
 
-  gem.add_development_dependency("assert", ["~> 2.18.2"])
+  gem.add_development_dependency("assert", ["~> 2.19.0"])
 
   gem.add_dependency("much-plugin", ["~> 0.2.2"])
   gem.add_dependency("scmd",        ["~> 3.0.3"])
