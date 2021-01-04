@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # -*- encoding: utf-8 -*-
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
@@ -20,9 +22,8 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = "~> 2.5"
 
-  gem.add_development_dependency("assert", ["~> 2.19.0"])
+  gem.add_development_dependency("assert", ["~> 2.19.1"])
 
-  gem.add_dependency("much-plugin", ["~> 0.2.2"])
+  gem.add_dependency("much-plugin", ["~> 0.2.3"])
   gem.add_dependency("scmd",        ["~> 3.0.3"])
-
 end

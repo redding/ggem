@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ggem/cli/clirb"
 require "much-plugin"
 

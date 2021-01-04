@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GGem; end
 class GGem::CLI; end
 class GGem::CLI::CLIRB # Version 1.1.0, https://github.com/redding/cli.rb

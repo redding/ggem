@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ggem/version"
 require "ggem/cli/clirb"
 require "ggem/cli/commands"

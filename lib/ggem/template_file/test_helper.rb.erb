@@ -1,10 +1,12 @@
-# this file is automatically required when you run `assert`
-# put any test helpers here
+# frozen_string_literal: true
 
-# add the root dir to the load path
+# This file is automatically required when you run `assert`; put any test
+# helpers here.
+
+# Add the root dir to the load path.
 $LOAD_PATH.unshift(File.expand_path("../..", __FILE__))
 
-# require pry for debugging (`binding.pry`)
+# Require pry for debugging (`binding.pry`).
 require "pry"
 
 require "test/support/factory"
