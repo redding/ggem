@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "much-plugin"
+require "much-mixin"
 require "scmd"
 
 module GGem; end
 module GGem::CmdTestsHelpers
-  include MuchPlugin
+  include MuchMixin
 
-  plugin_included do
+  mixin_included do
     setup do
       ENV["SCMD_TEST_MODE"] = "1"
 

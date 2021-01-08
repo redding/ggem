@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "ggem/cli/clirb"
-require "much-plugin"
+require "much-mixin"
 
 module GGem; end
 class GGem::CLI
@@ -33,9 +33,9 @@ class GGem::CLI
   end
 
   module ValidCommand
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_instance_methods do
+    mixin_instance_methods do
       def initialize(&clirb_build)
         @clirb = CLIRB.new(&clirb_build)
       end
@@ -55,9 +55,9 @@ class GGem::CLI
   end
 
   module NotifyCmdCommand
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_instance_methods do
+    mixin_instance_methods do
       private
 
       def notify(success_msg, &cmd_block)
@@ -76,14 +76,14 @@ class GGem::CLI
   end
 
   module GitRepoCommand
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_included do
+    mixin_included do
       include ValidCommand
       include NotifyCmdCommand
     end
 
-    plugin_instance_methods do
+    mixin_instance_methods do
       def initialize(*args)
         super
 
@@ -137,14 +137,14 @@ class GGem::CLI
   end
 
   module GemspecCommand
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_included do
+    mixin_included do
       include ValidCommand
       include NotifyCmdCommand
     end
 
-    plugin_instance_methods do
+    mixin_instance_methods do
       def initialize(*args)
         super
 
@@ -254,13 +254,13 @@ class GGem::CLI
   end
 
   module ForceTagOptionCommand
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_included do
+    mixin_included do
       include ValidCommand
     end
 
-    plugin_instance_methods do
+    mixin_instance_methods do
       def initialize
         super do
           option "force-tag", "force tagging even with uncommitted files", {

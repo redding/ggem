@@ -8,7 +8,7 @@ require "ggem/cli/commands"
 require "ggem/gem"
 require "ggem/gemspec"
 require "ggem/git_repo"
-require "much-plugin"
+require "much-mixin"
 
 class GGem::CLI
   class UnitTests < Assert::Context
@@ -305,9 +305,9 @@ class GGem::CLI
   end
 
   module RootPathTests
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_included do
+    mixin_included do
       setup do
         @root_path = Factory.path
         Assert.stub(Dir, :pwd){ @root_path }
@@ -316,9 +316,9 @@ class GGem::CLI
   end
 
   module GitRepoSpyTests
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_included do
+    mixin_included do
       include RootPathTests
 
       setup do
@@ -435,9 +435,9 @@ class GGem::CLI
   end
 
   module GemspecSpyTests
-    include MuchPlugin
+    include MuchMixin
 
-    plugin_included do
+    mixin_included do
       include RootPathTests
 
       setup do
