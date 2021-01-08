@@ -19,12 +19,15 @@ class GGem::Template
     save_folder "log"
     save_folder "tmp"
 
+    save_file("l.yml.erb",        ".l.yml")
+    save_file("t.yml.erb",        ".t.yml")
+    save_file("rubocop.yml.erb",  ".rubocop.yml")
     save_file("ruby-version.erb", ".ruby-version")
-    save_file("gitignore.erb", ".gitignore")
-    save_file("Gemfile.erb",   "Gemfile")
-    save_file("gemspec.erb",   "#{@ggem.name}.gemspec")
-    save_file("README.md.erb", "README.md")
-    save_file("LICENSE.erb",   "LICENSE")
+    save_file("gitignore.erb",    ".gitignore")
+    save_file("Gemfile.erb",      "Gemfile")
+    save_file("gemspec.erb",      "#{@ggem.name}.gemspec")
+    save_file("README.md.erb",    "README.md")
+    save_file("LICENSE.erb",      "LICENSE")
 
     save_file("lib.rb.erb",         "lib/#{@ggem.ruby_name}.rb")
     save_file("lib_version.rb.erb", "lib/#{@ggem.ruby_name}/version.rb")
