@@ -1,0 +1,8 @@
+# https://github.com/redding/l.rb
+
+linters:
+  - name: "Rubocop"
+    cmd: "rubocop"
+    extensions:
+      - ".rb"
+    cli_abbrev: "u"
