@@ -7,7 +7,6 @@ require "test/support/name_set"
 
 module GGem
   class SystemTests < Assert::Context
-
     NS_SIMPLE = GGem::NameSet::Simple
     NS_UNDER  = GGem::NameSet::Underscored
     NS_HYPHEN = GGem::NameSet::HyphenatedOther
@@ -18,7 +17,8 @@ module GGem
   class GemTests < SystemTests
     desc "Gem"
 
-    should "know its name attrs for various name styles (simple/underscored/hyphenated)" do
+    should "know its name attrs for various name styles "\
+           "(simple/underscored/hyphenated)" do
       [NS_SIMPLE, NS_UNDER, NS_HYPHEN].each do |ns|
         assert_gem_name_set(ns.new)
       end
@@ -45,7 +45,8 @@ module GGem
       FileUtils.rm_rf(TMP_PATH)
     end
 
-    should "save gems with various name styles (simple/underscored/hyphenated)" do
+    should "save gems with various name styles "\
+           "(simple/underscored/hyphenated)" do
       [NS_SIMPLE, NS_UNDER, NS_HYPHEN].each do |ns|
         init_gem = GGem::Gem.new(TMP_PATH, ns.new.variations.first)
         gem_from_save = init_gem.save!
@@ -60,10 +61,12 @@ module GGem
     def assert_gem_created(name_set)
       folders = name_set.expected_folders
       files   = name_set.expected_files
-      paths   = (folders + files).collect{ |p| File.join(TMP_PATH, name_set.name, p) }
+      paths   = (folders + files).collect do |p|
+        File.join(TMP_PATH, name_set.name, p)
+      end
 
       paths.flatten.each do |path|
-        assert File.exists?(path), "`#{path}` does not exist"
+        assert File.exist?(path), "`#{path}` does not exist"
       end
     end
   end

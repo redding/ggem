@@ -4,6 +4,7 @@ require "erb"
 require "fileutils"
 
 module GGem; end
+
 class GGem::Template
   def initialize(ggem)
     @ggem = ggem
@@ -39,7 +40,7 @@ class GGem::Template
 
   private
 
-  def save_folder(relative_path=nil)
+  def save_folder(relative_path = nil)
     path = File.join([@ggem.path, relative_path].compact)
     FileUtils.mkdir_p(path)
   end
@@ -53,10 +54,10 @@ class GGem::Template
     source_file = File.join(File.dirname(__FILE__), "template_file", source)
     output_file = File.join(@ggem.root_path, @ggem.name, output)
 
-    if File.exists?(source_file)
+    if File.exist?(source_file)
       FileUtils.mkdir_p(File.dirname(output_file))
       erb = ERB.new(File.read(source_file))
-      File.open(output_file, "w") {|f| f << erb.result(binding) }
+      File.open(output_file, "w"){ |f| f << erb.result(binding) }
     else
       raise ArgumentError, "the source file `#{source_file}` does not exist"
     end

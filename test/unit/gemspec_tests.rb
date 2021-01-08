@@ -94,18 +94,23 @@ class GGem::Gemspec
 
     setup do
       @exp_build_path = @gem1_root_path.join(subject.gem_file_name)
-      @exp_pkg_path   = @gem1_root_path.join(@gemspec_class::BUILD_TO_DIRNAME, subject.gem_file_name)
+      @exp_pkg_path   =
+        @gem1_root_path.join(
+          @gemspec_class::BUILD_TO_DIRNAME,
+          subject.gem_file_name,
+        )
     end
   end
 
   class RunBuildCmdTests < CmdTests
     desc "`run_build_cmd`"
     setup do
-      @exp_cmds_run = [
-        "gem build --verbose #{subject.path}",
-        "mkdir -p #{@exp_pkg_path.dirname}",
-        "mv #{@exp_build_path} #{@exp_pkg_path}"
-      ]
+      @exp_cmds_run =
+        [
+          "gem build --verbose #{subject.path}",
+          "mkdir -p #{@exp_pkg_path.dirname}",
+          "mv #{@exp_build_path} #{@exp_pkg_path}",
+        ]
     end
 
     should "run system cmds to build the gem" do

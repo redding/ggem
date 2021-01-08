@@ -47,7 +47,7 @@ class GGem::GitRepo
     setup do
       @exp_cmds_run = [
         "cd #{@repo_path} && git init",
-        "cd #{@repo_path} && git add --all && git add -f *.keep"
+        "cd #{@repo_path} && git add --all && git add -f *.keep",
       ]
     end
 
@@ -64,7 +64,7 @@ class GGem::GitRepo
     desc "`run_validate_clean_cmd`"
     setup do
       @exp_cmds_run = [
-        "cd #{@repo_path} && git diff --exit-code"
+        "cd #{@repo_path} && git diff --exit-code",
       ]
     end
 
@@ -81,7 +81,7 @@ class GGem::GitRepo
     desc "`run_validate_committed_cmd`"
     setup do
       @exp_cmds_run = [
-        "cd #{@repo_path} && git diff-index --quiet --cached HEAD"
+        "cd #{@repo_path} && git diff-index --quiet --cached HEAD",
       ]
     end
 
@@ -99,7 +99,7 @@ class GGem::GitRepo
     setup do
       @exp_cmds_run = [
         "cd #{@repo_path} && git push",
-        "cd #{@repo_path} && git push --tags"
+        "cd #{@repo_path} && git push --tags",
       ]
     end
 
@@ -119,7 +119,7 @@ class GGem::GitRepo
       @tag     = Factory.string
 
       @exp_cmds_run = [
-        "cd #{@repo_path} && git tag -a -m \"Version #{@version}\" #{@tag}"
+        "cd #{@repo_path} && git tag -a -m \"Version #{@version}\" #{@tag}",
       ]
     end
 
@@ -128,7 +128,9 @@ class GGem::GitRepo
     end
 
     should "complain if any system cmds are not successful" do
-      assert_exp_cmds_error(CmdError){ subject.run_add_version_tag_cmd(@version, @tag) }
+      assert_exp_cmds_error(CmdError) do
+        subject.run_add_version_tag_cmd(@version, @tag)
+      end
     end
   end
 
@@ -138,7 +140,7 @@ class GGem::GitRepo
       @tag = Factory.string
 
       @exp_cmds_run = [
-        "cd #{@repo_path} && git tag -d #{@tag}"
+        "cd #{@repo_path} && git tag -d #{@tag}",
       ]
     end
 

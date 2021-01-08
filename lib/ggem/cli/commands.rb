@@ -4,6 +4,7 @@ require "ggem/cli/clirb"
 require "much-mixin"
 
 module GGem; end
+
 class GGem::CLI
   InvalidCommandError = Class.new(ArgumentError)
   CommandExitError    = Class.new(RuntimeError)
@@ -16,12 +17,14 @@ class GGem::CLI
       @clirb = CLIRB.new
     end
 
-    def new; self; end
+    def new
+      self
+    end
 
     def run(argv)
       @clirb.parse!([@name, argv].flatten.compact)
       raise CLIRB::HelpExit if @name.to_s.empty?
-      raise InvalidCommandError, "`#{self.name}` is not a command."
+      raise InvalidCommandError, "`#{name}` is not a command."
     end
 
     def help
@@ -40,7 +43,9 @@ class GGem::CLI
         @clirb = CLIRB.new(&clirb_build)
       end
 
-      def clirb; @clirb; end
+      def clirb
+        @clirb
+      end
 
       def run(argv, stdout = nil, stderr = nil)
         @clirb.parse!(argv)
@@ -66,7 +71,7 @@ class GGem::CLI
       end
 
       def cmd(&cmd_block)
-        cmd, status, output = cmd_block.call
+        cmd, _status, output = cmd_block.call
         if ENV["DEBUG"]
           @stdout.puts cmd
           @stdout.puts output
@@ -96,8 +101,8 @@ class GGem::CLI
       def notify(*args, &block)
         begin
           super
-        rescue GGem::GitRepo::CmdError => exception
-          @stderr.puts exception.message
+        rescue GGem::GitRepo::CmdError => ex
+          @stderr.puts ex.message
           raise CommandExitError
         end
       end
@@ -114,9 +119,9 @@ class GGem::CLI
         require "ggem/gem"
         path = GGem::Gem.new(Dir.pwd, @clirb.args.first).save!.path
         @stdout.puts "created gem in #{path}"
-      rescue GGem::Gem::NoNameError => exception
+      rescue GGem::Gem::NoNameError => ex
         error = ArgumentError.new("GEM-NAME must be provided")
-        error.set_backtrace(exception.backtrace)
+        error.set_backtrace(ex.backtrace)
         raise error
       end
 
@@ -132,7 +137,7 @@ class GGem::CLI
       "Usage: ggem generate [options] GEM-NAME\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  #{self.summary}"
+      "  #{summary}"
     end
   end
 
@@ -151,9 +156,9 @@ class GGem::CLI
         require "ggem/gemspec"
         begin
           @spec = GGem::Gemspec.new(Dir.pwd)
-        rescue GGem::Gemspec::NotFoundError => exception
+        rescue GGem::Gemspec::NotFoundError => ex
           error = ArgumentError.new("There are no gemspecs at #{Dir.pwd}")
-          error.set_backtrace(exception.backtrace)
+          error.set_backtrace(ex.backtrace)
           raise error
         end
       end
@@ -163,8 +168,8 @@ class GGem::CLI
       def notify(*args, &block)
         begin
           super
-        rescue GGem::Gemspec::CmdError => exception
-          @stderr.puts exception.message
+        rescue GGem::Gemspec::CmdError => ex
+          @stderr.puts ex.message
           raise CommandExitError
         end
       end
@@ -190,7 +195,7 @@ class GGem::CLI
       "Usage: ggem build [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  #{self.summary}"
+      "  #{summary}"
     end
   end
 
@@ -219,7 +224,7 @@ class GGem::CLI
       "Usage: ggem install [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  #{self.summary}"
+      "  #{summary}"
     end
   end
 
@@ -249,7 +254,7 @@ class GGem::CLI
       "Usage: ggem push [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  #{self.summary}"
+      "  #{summary}"
     end
   end
 
@@ -264,7 +269,7 @@ class GGem::CLI
       def initialize
         super do
           option "force-tag", "force tagging even with uncommitted files", {
-            :abbrev => "f"
+            abbrev: "f",
           }
         end
       end
@@ -282,9 +287,9 @@ class GGem::CLI
       begin
         cmd{ @repo.run_validate_clean_cmd }
         cmd{ @repo.run_validate_committed_cmd }
-      rescue GGem::GitRepo::CmdError => err
+      rescue GGem::GitRepo::CmdError
         @stderr.puts "There are files that need to be committed first."
-        if self.clirb.opts["force-tag"]
+        if clirb.opts["force-tag"]
           @stderr.puts "Forcing tag anyway..."
         else
           raise CommandExitError
@@ -303,8 +308,8 @@ class GGem::CLI
       end
 
       @stdout.puts "Pushed git commits and tags."
-    rescue GGem::GitRepo::CmdError => err
-      @stderr.puts err.message
+    rescue GGem::GitRepo::CmdError => ex
+      @stderr.puts ex.message
       raise CommandExitError
     end
 
@@ -316,7 +321,7 @@ class GGem::CLI
       "Usage: ggem tag [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  #{self.summary}"
+      "  #{summary}"
     end
   end
 
@@ -332,7 +337,7 @@ class GGem::CLI
 
     def run(argv, *args)
       super
-      @tag_command.run(self.clirb.opts["force-tag"] ? ["--force-tag"] : [])
+      @tag_command.run(clirb.opts["force-tag"] ? ["--force-tag"] : [])
       @push_command.run([])
     end
 
@@ -345,14 +350,14 @@ class GGem::CLI
       "Usage: ggem release [options]\n\n" \
       "Options: #{@clirb}\n" \
       "Description:\n" \
-      "  #{self.summary}\n" \
+      "  #{summary}\n" \
       "  (macro for running `ggem tag && ggem push`)"
     end
   end
 
   class CommandSet
     def initialize(&unknown_cmd_block)
-      @lookup    = Hash.new{ |h,k| unknown_cmd_block.call(k) }
+      @lookup    = Hash.new{ |_h, k| unknown_cmd_block.call(k) }
       @names     = []
       @aliases   = {}
       @summaries = {}
@@ -361,7 +366,7 @@ class GGem::CLI
     def add(klass, name, *aliases)
       begin
         cmd = klass.new
-      rescue StandardError => err
+      rescue
         # don't add any commands you can't init
       else
         ([name] + aliases).each{ |n| @lookup[n] = cmd }
@@ -388,12 +393,13 @@ class GGem::CLI
     end
 
     def to_s
-      max_name_size  = @names.map{ |n| n.size }.max || 0
-      max_alias_size = @aliases.values.map{ |v| v.size }.max || 0
+      max_name_size  = @names.map(&:size).max || 0
+      max_alias_size = @aliases.values.map(&:size).max || 0
 
-      @to_s ||= @names.map do |n|
-        "#{n.ljust(max_name_size)} #{@aliases[n].ljust(max_alias_size)} #{@summaries[n]}"
-      end.join("\n")
+      @to_s ||= @names.map{ |n|
+        "#{n.ljust(max_name_size)} #{@aliases[n].ljust(max_alias_size)} "\
+        "#{@summaries[n]}"
+      }.join("\n")
     end
   end
 end

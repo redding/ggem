@@ -5,6 +5,7 @@ require "ggem/cli/clirb"
 require "ggem/cli/commands"
 
 module GGem; end
+
 class GGem::CLI
   COMMANDS = CommandSet.new{ |unknown| InvalidCommand.new(unknown) }.tap do |c|
     c.add(GenerateCommand, "generate", "g")
@@ -16,7 +17,7 @@ class GGem::CLI
   end
 
   def self.run(args)
-    self.new.run(args)
+    new.run(args)
   end
 
   def initialize(kernel = nil, stdout = nil, stderr = nil)
@@ -34,16 +35,16 @@ class GGem::CLI
       @stdout.puts cmd.help
     rescue CLIRB::VersionExit
       @stdout.puts GGem::VERSION
-    rescue CLIRB::Error, ArgumentError, InvalidCommandError => exception
-      display_debug(exception)
-      @stderr.puts "#{exception.message}\n\n"
+    rescue CLIRB::Error, ArgumentError, InvalidCommandError => ex
+      display_debug(ex)
+      @stderr.puts "#{ex.message}\n\n"
       @stdout.puts cmd.help
       @kernel.exit 1
     rescue CommandExitError
       @kernel.exit 1
-    rescue StandardError => exception
-      @stderr.puts "#{exception.class}: #{exception.message}"
-      @stderr.puts exception.backtrace.join("\n")
+    rescue => ex
+      @stderr.puts "#{ex.class}: #{ex.message}"
+      @stderr.puts ex.backtrace.join("\n")
       @kernel.exit 1
     end
     @kernel.exit 0

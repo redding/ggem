@@ -4,6 +4,7 @@ require "pathname"
 require "scmd"
 
 module GGem; end
+
 class GGem::GitRepo
   NotFoundError = Class.new(ArgumentError)
   CmdError      = Class.new(RuntimeError)
@@ -48,7 +49,7 @@ class GGem::GitRepo
     cmd_string = "cd #{@path} && #{cmd_string}"
     cmd = Scmd.new(cmd_string)
     cmd.run
-    if !cmd.success?
+    unless cmd.success?
       raise CmdError, "#{cmd_string}\n" \
                       "#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
     end

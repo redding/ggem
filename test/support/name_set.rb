@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 module GGem; end
+
 module GGem::NameSet
   class Base
     attr_reader :variations, :name, :module_name, :ruby_name
 
     def expected_folders
-      [ "",
+      [
+        "",
         "lib",
         "lib/#{@ruby_name}",
         "test",
@@ -14,12 +16,13 @@ module GGem::NameSet
         "test/system",
         "test/unit",
         "log",
-        "tmp"
+        "tmp",
       ]
     end
 
     def expected_files
-      [ ".ruby-version",
+      [
+        ".ruby-version",
         ".gitignore",
         "Gemfile",
         "#{@name}.gemspec",

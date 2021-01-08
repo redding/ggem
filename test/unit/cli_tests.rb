@@ -147,7 +147,7 @@ class GGem::CLI
   class RunWithHelpTests < RunSetupTests
     desc "and run with the help switch"
     setup do
-      @cli.run([ "--help" ])
+      @cli.run(["--help"])
     end
 
     should "output the invalid command's help" do
@@ -163,7 +163,7 @@ class GGem::CLI
   class RunWithVersionTests < RunSetupTests
     desc "and run with the version switch"
     setup do
-      @cli.run([ "--version" ])
+      @cli.run(["--version"])
     end
 
     should "have output its version" do
@@ -217,8 +217,8 @@ class GGem::CLI
     end
 
     should "parse its argv on run" do
-      assert_raises(CLIRB::HelpExit){ subject.new.run([ "--help" ]) }
-      assert_raises(CLIRB::VersionExit){ subject.new.run([ "--version" ]) }
+      assert_raises(CLIRB::HelpExit){ subject.new.run(["--help"]) }
+      assert_raises(CLIRB::VersionExit){ subject.new.run(["--version"]) }
     end
 
     should "raise a help exit if its name is empty" do
@@ -269,7 +269,7 @@ class GGem::CLI
 
     should "take custom CLIRB build procs" do
       cmd = @command_class.new do
-        option "test", "testing", :abbrev => "t"
+        option "test", "testing", abbrev: "t"
       end
       cmd.run(["-t"], @stdout, @stderr)
       assert_true cmd.clirb.opts["test"]
@@ -284,7 +284,7 @@ class GGem::CLI
     desc "GitRepoCommand"
     setup do
       @gem1_root_path = TEST_SUPPORT_PATH.join("gem1")
-      Assert.stub(Dir, :pwd){ @gem1_root_path}
+      Assert.stub(Dir, :pwd){ @gem1_root_path }
 
       @command_class = Class.new{ include GitRepoCommand }
       @cmd = @command_class.new
@@ -323,7 +323,9 @@ class GGem::CLI
 
       setup do
         @repo_spy = nil
-        Assert.stub(GGem::GitRepo, :new){ |*args| @repo_spy = GitRepoSpy.new(*args) }
+        Assert.stub(GGem::GitRepo, :new) do |*args|
+          @repo_spy = GitRepoSpy.new(*args)
+        end
       end
     end
   end
@@ -383,17 +385,15 @@ class GGem::CLI
 
     should "re-raise a specific argument error on gem 'no name' errors" do
       Assert.stub(@gem_class, :new){ raise GGem::Gem::NoNameError }
-      err = nil
-      begin
-        cmd = @command_class.new
-        cmd.run([])
-      rescue ArgumentError => err
-      end
 
-      assert_not_nil err
+      ex =
+        assert_that{
+          cmd = @command_class.new
+          cmd.run([])
+        }.raises(ArgumentError)
       exp = "GEM-NAME must be provided"
-      assert_equal exp, err.message
-      assert_not_empty err.backtrace
+      assert_equal exp, ex.message
+      assert_not_empty ex.backtrace
     end
   end
 
@@ -401,7 +401,7 @@ class GGem::CLI
     desc "GemspecCommand"
     setup do
       @gem1_root_path = TEST_SUPPORT_PATH.join("gem1")
-      Assert.stub(Dir, :pwd){ @gem1_root_path}
+      Assert.stub(Dir, :pwd){ @gem1_root_path }
 
       @command_class = Class.new{ include GemspecCommand }
       @cmd = @command_class.new
@@ -424,13 +424,9 @@ class GGem::CLI
       root = Factory.path
       Assert.stub(Dir, :pwd){ root }
 
-      begin
-        cmd = @command_class.new
-      rescue ArgumentError => err
-      end
-      assert_not_nil err
+      ex = assert_that{ @command_class.new }.raises(ArgumentError)
       exp = "There are no gemspecs at #{Dir.pwd}"
-      assert_equal exp, err.message
+      assert_equal exp, ex.message
     end
   end
 
@@ -442,7 +438,9 @@ class GGem::CLI
 
       setup do
         @spec_spy = nil
-        Assert.stub(GGem::Gemspec, :new){ |*args| @spec_spy = GemspecSpy.new(*args) }
+        Assert.stub(GGem::Gemspec, :new) do |*args|
+          @spec_spy = GemspecSpy.new(*args)
+        end
       end
     end
   end
@@ -481,7 +479,9 @@ class GGem::CLI
       assert_true @spec_spy.run_build_cmd_called
 
       exp = ENV["DEBUG"] == "1" ? "build\nbuild cmd was run\n" : ""
-      exp += "#{@spec_spy.name} #{@spec_spy.version} built to #{@spec_spy.gem_file}\n"
+      exp +=
+        "#{@spec_spy.name} #{@spec_spy.version} built to "\
+        "#{@spec_spy.gem_file}\n"
       assert_equal exp, @stdout.read
 
       ENV["DEBUG"] = nil
@@ -489,7 +489,9 @@ class GGem::CLI
 
     should "handle cmd errors when run" do
       err_msg = Factory.string
-      Assert.stub(@spec_spy, :run_build_cmd){ raise GGem::Gemspec::CmdError, err_msg }
+      Assert.stub(@spec_spy, :run_build_cmd) do
+        raise GGem::Gemspec::CmdError, err_msg
+      end
 
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
@@ -502,7 +504,9 @@ class GGem::CLI
     desc "InstallCommand"
     setup do
       @build_spy = nil
-      Assert.stub(BuildCommand, :new){ |*args| @build_spy = CommandSpy.new(*args) }
+      Assert.stub(BuildCommand, :new) do |*args|
+        @build_spy = CommandSpy.new(*args)
+      end
 
       @command_class = InstallCommand
       @cmd = @command_class.new
@@ -529,7 +533,8 @@ class GGem::CLI
       assert @build_spy
     end
 
-    should "run the build command and call the spec's run install cmds when run" do
+    should "run the build command and call the spec's run install cmds when "\
+           "run" do
       ENV["DEBUG"] = [nil, "1"].sample
       subject.run(@argv, @stdout, @stderr)
 
@@ -546,7 +551,9 @@ class GGem::CLI
 
     should "handle cmd errors when run" do
       err_msg = Factory.string
-      Assert.stub(@spec_spy, :run_install_cmd){ raise GGem::Gemspec::CmdError, err_msg }
+      Assert.stub(@spec_spy, :run_install_cmd) do
+        raise GGem::Gemspec::CmdError, err_msg
+      end
 
       assert_raises(CommandExitError){ subject.run(@argv, @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
@@ -559,7 +566,9 @@ class GGem::CLI
     desc "PushCommand"
     setup do
       @build_spy = nil
-      Assert.stub(BuildCommand, :new){ |*args| @build_spy = CommandSpy.new(*args) }
+      Assert.stub(BuildCommand, :new) do |*args|
+        @build_spy = CommandSpy.new(*args)
+      end
 
       @command_class = PushCommand
       @cmd = @command_class.new
@@ -604,7 +613,9 @@ class GGem::CLI
 
     should "handle cmd errors when run" do
       err_msg = Factory.string
-      Assert.stub(@spec_spy, :run_push_cmd){ raise GGem::Gemspec::CmdError, err_msg }
+      Assert.stub(@spec_spy, :run_push_cmd) do
+        raise GGem::Gemspec::CmdError, err_msg
+      end
 
       assert_raises(CommandExitError){ subject.run(@argv, @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
@@ -717,7 +728,9 @@ class GGem::CLI
 
     should "remove the version tag on push errors" do
       err_msg = Factory.string
-      Assert.stub(@repo_spy, :run_push_cmd){ raise GGem::GitRepo::CmdError, err_msg }
+      Assert.stub(@repo_spy, :run_push_cmd) do
+        raise GGem::GitRepo::CmdError, err_msg
+      end
 
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
@@ -727,9 +740,13 @@ class GGem::CLI
     end
 
     should "handle tag removal cmd errors when run" do
-      Assert.stub(@repo_spy, :run_push_cmd){ raise GGem::GitRepo::CmdError, Factory.string }
+      Assert.stub(@repo_spy, :run_push_cmd) do
+        raise GGem::GitRepo::CmdError, Factory.string
+      end
       err_msg = Factory.string
-      Assert.stub(@repo_spy, :run_rm_tag_cmd){ raise GGem::GitRepo::CmdError, err_msg }
+      Assert.stub(@repo_spy, :run_rm_tag_cmd) do
+        raise GGem::GitRepo::CmdError, err_msg
+      end
 
       assert_raises(CommandExitError){ subject.run([], @stdout, @stderr) }
       assert_equal "#{err_msg}\n", @stderr.read
@@ -745,7 +762,9 @@ class GGem::CLI
       Assert.stub(TagCommand, :new){ |*args| @tag_spy = CommandSpy.new(*args) }
 
       @push_spy = nil
-      Assert.stub(PushCommand, :new){ |*args| @push_spy = CommandSpy.new(*args) }
+      Assert.stub(PushCommand, :new) do |*args|
+        @push_spy = CommandSpy.new(*args)
+      end
 
       @command_class = ReleaseCommand
       @cmd = @command_class.new
@@ -757,8 +776,9 @@ class GGem::CLI
     end
 
     should "know its summary" do
-      exp = "Tag #{@spec_spy.version_tag} and push built #{@spec_spy.gem_file_name} to " \
-               "#{@spec_spy.push_host}"
+      exp =
+        "Tag #{@spec_spy.version_tag} and push built "\
+        "#{@spec_spy.gem_file_name} to #{@spec_spy.push_host}"
       assert_equal exp, subject.summary
     end
 
@@ -937,7 +957,8 @@ class GGem::CLI
 
   class GemspecSpy
     attr_reader :name, :version, :version_tag, :push_host
-    attr_reader :run_build_cmd_called, :run_install_cmd_called, :run_push_cmd_called
+    attr_reader :run_build_cmd_called, :run_install_cmd_called
+    attr_reader :run_push_cmd_called
 
     def initialize(root_path)
       @root        = Pathname.new(File.expand_path(root_path))
@@ -952,15 +973,15 @@ class GGem::CLI
     end
 
     def path
-      @root.join("#{self.name}.gemspec")
+      @root.join("#{name}.gemspec")
     end
 
     def gem_file_name
-      "#{self.name}-#{self.version}.gem"
+      "#{name}-#{version}.gem"
     end
 
     def gem_file
-      File.join(GGem::Gemspec::BUILD_TO_DIRNAME, self.gem_file_name)
+      File.join(GGem::Gemspec::BUILD_TO_DIRNAME, gem_file_name)
     end
 
     def run_build_cmd
@@ -982,8 +1003,10 @@ class GGem::CLI
   class GitRepoSpy
     attr_reader :path
     attr_reader :run_init_cmd_called
-    attr_reader :run_validate_clean_cmd_called, :run_validate_committed_cmd_called
-    attr_reader :run_add_version_tag_cmd_called_with, :run_rm_tag_cmd_called_with
+    attr_reader :run_validate_clean_cmd_called
+    attr_reader :run_validate_committed_cmd_called
+    attr_reader :run_add_version_tag_cmd_called_with
+    attr_reader :run_rm_tag_cmd_called_with
     attr_reader :run_push_cmd_called
 
     def initialize(path)

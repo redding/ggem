@@ -4,6 +4,7 @@ require "much-mixin"
 require "scmd"
 
 module GGem; end
+
 module GGem::CmdTestsHelpers
   include MuchMixin
 
@@ -39,12 +40,11 @@ module GGem::CmdTestsHelpers
         cmd.stderr     = Factory.string
         @cmd_spy       = cmd
       end
-      err = nil
-      begin; run_cmd_block.call; rescue StandardError => err; end
 
-      assert_kind_of cmd_error_class, err
+      ex =
+        assert_that{ run_cmd_block.call }.raises(cmd_error_class)
       exp = "#{@cmd_spy.cmd_str}\n#{@cmd_spy.stderr}"
-      assert_equal exp, err.message
+      assert_equal exp, ex.message
     end
   end
 end

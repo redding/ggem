@@ -4,6 +4,7 @@ require "fileutils"
 require "ggem/template"
 
 module GGem; end
+
 class GGem::Gem
   NoNameError = Class.new(ArgumentError)
 
@@ -30,13 +31,13 @@ class GGem::Gem
   def module_name
     transforms = {
       "_" => "",
-      "-" => ""
+      "-" => "",
     }
-    @module_name ||= transform_name(transforms){ |part| part.capitalize }
+    @module_name ||= transform_name(transforms, &:capitalize)
   end
 
   def ruby_name
-    @ruby_name ||= transform_name{ |part| part.downcase }
+    @ruby_name ||= transform_name(&:downcase)
   end
 
   private
@@ -44,15 +45,15 @@ class GGem::Gem
   def normalize_name(name)
     und_camelcs = [/([A-Z])([a-z])/, '_\1\2']
     rm_dup_und  = [/_+/, "_"]
-    rm_lead_und = [/^_/, "" ]
+    rm_lead_und = [/^_/, ""]
     name.gsub(*und_camelcs).gsub(*rm_dup_und).sub(*rm_lead_und).downcase
   end
 
   def transform_name(conditions = {}, &block)
-    n = (block ? block.call(self.name) : self.name)
+    n = (block ? block.call(name) : name)
     conditions.each do |on, glue|
       if (a = n.split(on)).size > 1
-        n = a.map{ |part| block.call(part) if block }.join(glue)
+        n = a.map{ |part| block&.call(part) }.join(glue)
       end
     end
     n
