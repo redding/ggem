@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-
 # frozen_string_literal: true
+
 Gem::Specification.new do |gem|
   gem.name        = "gem2"
   gem.version     = "0.2.0"
