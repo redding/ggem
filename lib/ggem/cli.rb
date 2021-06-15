@@ -7,14 +7,15 @@ require "ggem/cli/commands"
 module GGem; end
 
 class GGem::CLI
-  COMMANDS = CommandSet.new{ |unknown| InvalidCommand.new(unknown) }.tap do |c|
-    c.add(GenerateCommand, "generate", "g")
-    c.add(BuildCommand,    "build",    "b")
-    c.add(InstallCommand,  "install",  "i")
-    c.add(PushCommand,     "push",     "p")
-    c.add(TagCommand,      "tag",      "t")
-    c.add(ReleaseCommand,  "release",  "r")
-  end
+  COMMANDS =
+    CommandSet.new{ |unknown| InvalidCommand.new(unknown) }.tap do |c|
+      c.add(GenerateCommand, "generate", "g")
+      c.add(BuildCommand,    "build",    "b")
+      c.add(InstallCommand,  "install",  "i")
+      c.add(PushCommand,     "push",     "p")
+      c.add(TagCommand,      "tag",      "t")
+      c.add(ReleaseCommand,  "release",  "r")
+    end
 
   def self.run(args)
     new.run(args)

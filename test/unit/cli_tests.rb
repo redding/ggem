@@ -268,9 +268,10 @@ class GGem::CLI
     end
 
     should "take custom CLIRB build procs" do
-      cmd = @command_class.new do
-        option "test", "testing", abbrev: "t"
-      end
+      cmd =
+        @command_class.new do
+          option "test", "testing", abbrev: "t"
+        end
       cmd.run(["-t"], @stdout, @stderr)
       assert_true cmd.clirb.opts["test"]
     end
@@ -681,13 +682,14 @@ class GGem::CLI
       assert_true @repo_spy.run_push_cmd_called
       assert_nil @repo_spy.run_rm_tag_cmd_called_with
 
-      exp = if ENV["DEBUG"] == "1"
-        "validate clean\nvalidate clean cmd was run\n" \
-        "validate committed\nvalidate committed cmd was run\n" \
-        "add tag\nadd tag cmd was run\n"
-      else
-        ""
-      end
+      exp =
+        if ENV["DEBUG"] == "1"
+          "validate clean\nvalidate clean cmd was run\n" \
+          "validate committed\nvalidate committed cmd was run\n" \
+          "add tag\nadd tag cmd was run\n"
+        else
+          ""
+        end
       exp += "Tagged #{@spec_spy.version_tag}.\n"
       exp += ENV["DEBUG"] == "1" ? "push\npush cmd was run\n" : ""
       exp += "Pushed git commits and tags.\n"
