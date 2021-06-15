@@ -60,10 +60,8 @@ module GGem
 
     def assert_gem_created(name_set)
       folders = name_set.expected_folders
-      files   = name_set.expected_files
-      paths   = (folders + files).collect do |p|
-        File.join(TMP_PATH, name_set.name, p)
-      end
+      files = name_set.expected_files
+      paths = (folders + files).map{ |p| File.join(TMP_PATH, name_set.name, p) }
 
       paths.flatten.each do |path|
         assert File.exist?(path), "`#{path}` does not exist"
