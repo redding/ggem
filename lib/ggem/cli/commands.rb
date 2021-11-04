@@ -268,9 +268,11 @@ class GGem::CLI
     mixin_instance_methods do
       def initialize
         super do
-          option "force-tag", "force tagging even with uncommitted files", {
+          option(
+            "force-tag",
+            "force tagging even with uncommitted files",
             abbrev: "f",
-          }
+          )
         end
       end
     end

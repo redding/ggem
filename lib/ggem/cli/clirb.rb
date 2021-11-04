@@ -2,7 +2,7 @@
 
 module GGem; end
 class GGem::CLI; end
-class GGem::CLI::CLIRB # Version 1.1.0, https://github.com/redding/cli.rb
+class GGem::CLI::CLIRB # Version 1.2.0, https://github.com/redding/cli.rb
   Error    = Class.new(RuntimeError);
   HelpExit = Class.new(RuntimeError); VersionExit = Class.new(RuntimeError)
   attr_reader :argv, :args, :opts, :data
@@ -19,7 +19,7 @@ class GGem::CLI::CLIRB # Version 1.1.0, https://github.com/redding/cli.rb
     end
   end
 
-  def option(*args); @options << Option.new(*args); end
+  def option(*args, **kargs); @options << Option.new(*args, **kargs); end
   def parse!(argv)
     @args = (argv || []).dup.tap do |args_list|
       begin; @parser.parse!(args_list)
